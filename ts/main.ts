@@ -28,7 +28,6 @@ let div = 8;
 let at = 0;
 
 setCircleWidth(size);
-
 setCursorWidthAndDiv(size, div);
 
 function angleDiff(a: number, b: number) {
