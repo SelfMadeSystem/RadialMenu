@@ -2,13 +2,17 @@ body {
   margin: 0;
 }
 
-#mainSvg {
-  max-width: 100vw;
-  max-height: 100vh;
+.circleMenu {
   display: block;
   margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  z-index: 1;
 }
 
-#cursor {
+.cursor {
   transition: transform 0.2s ease;
 }
