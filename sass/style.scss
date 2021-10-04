@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+}
+
+#mainSvg {
+  max-width: 100vw;
+  max-height: 100vh;
+  display: block;
+  margin: auto;
+}
+
+#cursor {
+  transition: transform 0.2s ease;
+}
