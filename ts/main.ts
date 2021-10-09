@@ -1,5 +1,11 @@
 import '../sass/style.scss'
-import { annularSector } from './utils/svgUtils';
+import { RadialMenu } from './menu/radialMenu'
+
+$(".circleMenu").each((_, el) => {
+    new RadialMenu(el as unknown as SVGElement)
+})
+
+/*import { annularSector } from './utils/svgUtils';
 
 $(".circleMenu").each((_, ele) => {
     const $ele = $(ele)
@@ -40,8 +46,12 @@ $(".circleMenu").each((_, ele) => {
     setCircleWidth(size);
     setCursorWidthAndDiv(size, div);
 
+    function mod(a: number, b: number) {
+        return ((a % b) + b) % b;
+    }
+
     function angleDiff(a: number, b: number) {
-        const diff = a % 360 - b % 360;
+        const diff = mod(a, 360) - mod(b, 360);
         return diff > 180 ? diff - 360 : diff < -180 ? diff + 360 : diff;
     }
 
@@ -77,4 +87,4 @@ $(".circleMenu").each((_, ele) => {
             cursor.css("transform", `rotate(${angleDiff(angle, currentAngle) + currentAngle}deg)`)
         }
     })
-})
+}) */
