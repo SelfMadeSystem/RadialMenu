@@ -13,6 +13,7 @@ export class MenuCursor {
         this.$ele = $(ele);
         this.setWidth(360 / menu.maxIndex);
         this.setIndex(menu.index);
+        requestAnimationFrame(() => this.$ele.css("transition", "transform 0.2s ease"));
     }
 
     public setWidth(width: number) {
@@ -59,9 +60,7 @@ export class MenuCursor {
 
     public setIndex(index: number) {
         this.$ele.attr("data-index", index);
-        var angle = 360 / this.menu.maxIndex * index + this.menu.cursorOffset;
-        
-        this.setAngle(angle);
+        this.setAngle(this.menu.getAngle(index));
     }
 
     public setAngle(angle: number) {

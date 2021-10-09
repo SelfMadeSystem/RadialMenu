@@ -14,3 +14,11 @@ export function rotDiff(a: number, b: number): number {
     const diff = mod(b - a, 360);
     return diff > 180 ? diff - 360 : diff;
 }
+
+export function toDeg(rad: number): number {
+    return rad * 180 / Math.PI;
+}
+
+export function toRad(deg: number): number {
+    return deg * Math.PI / 180;
+}

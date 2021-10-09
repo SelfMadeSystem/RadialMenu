@@ -18,13 +18,25 @@ export class MenuCircle {
         M50,${s} A${sMin50},${sMin50} 0 0,0 ${s},50 A${sMin50},${sMin50} 0 1,0 50,${s}`)
     }
 
+    public innerRadius(): number {
+        return 50 - this.menu.ringSize;
+    }
+
+    public outerRadius(): number {
+        return 50;
+    }
+
+    public thickness(): number {
+        return this.menu.ringSize;
+    }
+
     public onMove(e: JQuery.MouseMoveEvent) {
         const x = e.offsetX / this.menu.$ele.width() - 0.5
         const y = e.offsetY / this.menu.$ele.height() - 0.5
 
         const angle = Math.atan2(y, x) * 180 / Math.PI;
 
-        const index = mod(Math.round((angle - this.menu.cursorOffset) / 360 * this.menu.maxIndex), this.menu.maxIndex);
+        const index = mod(Math.round(this.menu.getIndex(angle)), this.menu.maxIndex);
 
         this.menu.setIndex(index)
     }
