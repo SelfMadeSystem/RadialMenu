@@ -10,32 +10,32 @@ export class MenuProgress {
         this.$ele = $(ele);
         this.thickness = parseFloat(this.$ele.attr("stroke-width")) || 1;
         
-        this.setProgress(0.6);
+        // this.setProgress(0.6);
 
-        let time = 0;
-        let time1 = 0;
-        let timeAdd = 0.004;
-        let timeAdd1 = 0.035;
-        let mult = 0.025;
+        // let time = 0;
+        // let time1 = 0;
+        // let timeAdd = 0.004;
+        // let timeAdd1 = 0.035;
+        // let mult = 0.025;
 
-        function _() {
-            time += timeAdd;
-            time1 += timeAdd1;
-            // if (time1 % 2 > time % 2) {
-            //     let temp = timeAdd;
-            //     timeAdd = timeAdd1;
-            //     timeAdd1 = temp;
-            //     temp = time;
-            //     time = time1;
-            //     time1 = temp;
-            // }
-            this.$ele.attr("d", this.getPath(time, time + 0.5/*  + Math.cos(time1) * mult */));
-            requestAnimationFrame(_.bind(this));
-        }
+        // function _() {
+        //     time += timeAdd;
+        //     time1 += timeAdd1;
+        //     // if (time1 % 2 > time % 2) {
+        //     //     let temp = timeAdd;
+        //     //     timeAdd = timeAdd1;
+        //     //     timeAdd1 = temp;
+        //     //     temp = time;
+        //     //     time = time1;
+        //     //     time1 = temp;
+        //     // }
+        //     this.$ele.attr("d", this.getPath(time, time + 0.5/*  + Math.cos(time1) * mult */));
+        //     requestAnimationFrame(_.bind(this));
+        // }
 
-        requestAnimationFrame(() => {
-            requestAnimationFrame(_.bind(this));
-        });
+        // requestAnimationFrame(() => {
+        //     requestAnimationFrame(_.bind(this));
+        // });
     }
 
     public setProgress(progress: number, animated: boolean = false) {

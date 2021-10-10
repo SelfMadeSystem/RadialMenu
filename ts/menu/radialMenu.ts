@@ -4,6 +4,7 @@ import { MenuRing } from "./menuRing";
 import { MenuCursor } from "./menuCursor";
 import { MenuProgress } from "./menuProgress";
 import { MenuSeperator } from "./menuSeperator";
+import { MenuItem } from "./menuItem";
 
 export class RadialMenu {
     public $ele: JQuery<SVGElement>;
@@ -12,6 +13,8 @@ export class RadialMenu {
     public cursor: MenuCursor;
     public seperator: MenuSeperator;
     public progressBar: MenuProgress;
+
+    public items: MenuItem[] = [];
 
     public center: Vec2;
     public radius: number;
@@ -32,6 +35,9 @@ export class RadialMenu {
         this.cursor = new MenuCursor(ele.querySelector(".cursor"), this);
         this.seperator = new MenuSeperator(ele.querySelector(".seperator"), this);
         this.progressBar = new MenuProgress(ele.querySelector(".progress-bar"), this);
+        ele.querySelectorAll(":scope > .menu > .menu-item").forEach((item, k) => {
+            this.items.push(new MenuItem(item as SVGGeometryElement, k, this));
+        });
     }
 
     public setIndex(index: number) {

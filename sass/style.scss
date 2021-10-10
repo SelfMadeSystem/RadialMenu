@@ -11,3 +11,7 @@ body {
   max-height: 100vh;
   z-index: 1;
 }
+
+.menu-item {
+  pointer-events: none;
+}
