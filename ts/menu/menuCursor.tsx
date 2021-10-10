@@ -46,7 +46,7 @@ export class MenuCursor {
     }
 
     private _setWidth(width: number) {
-        annularSector(this.ele, {
+        this.$ele.attr("d", annularSector({
             centerX: 50,
             centerY: 50,
             startDegrees: -width/2,
@@ -55,7 +55,7 @@ export class MenuCursor {
             // outerRadius: 50 - this.menu.ringSize
             outerRadius: 50,
             thickness: this.menu.ringSize
-        })
+        }))
     }
 
     public setIndex(index: number) {

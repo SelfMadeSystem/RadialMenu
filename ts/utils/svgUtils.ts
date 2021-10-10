@@ -7,7 +7,7 @@
 // - innerRadius, outerRadius: distance from the center
 // - thickness: distance between innerRadius and outerRadius
 //   You should only specify two out of three of the radii and thickness
-export function annularSector(path: SVGPathElement, options: {centerX: number, centerY: number, startDegrees: number, endDegrees: number, innerRadius?: number, outerRadius?: number, thickness?: number}) {
+export function annularSector(options: {centerX: number, centerY: number, startDegrees: number, endDegrees: number, innerRadius?: number, outerRadius?: number, thickness?: number}): string {
     var opts = optionsWithDefaults(options);
     var p = [ // points
         [opts.cx + opts.r2 * Math.cos(opts.startRadians),
@@ -28,7 +28,7 @@ export function annularSector(path: SVGPathElement, options: {centerX: number, c
     cmds.push("L" + p[2].join());                                // Line to P2
     cmds.push("A" + [opts.r1, opts.r1, 0, largeArc, 0, p[3]].join()); // Arc to  P3
     cmds.push("z");                                // Close path (Line to P0)
-    path.setAttribute('d', cmds.join(' '));
+    return cmds.join(' ');
 
     function optionsWithDefaults(o: {centerX: number, centerY: number, startDegrees: number, endDegrees: number, innerRadius?: number, outerRadius?: number, thickness?: number}) {
         // Create a new object so that we don't mutate the original
