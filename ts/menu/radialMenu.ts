@@ -2,13 +2,17 @@ import { mod } from "../utils/mathUtils";
 import { Vec2 } from "../utils/vec2";
 import { MenuCircle } from "./menuCircle";
 import { MenuCursor } from "./menuCursor";
+import { MenuProgress } from "./menuProgress";
 import { MenuSeperator } from "./menuSeperator";
 
 export class RadialMenu {
     public $ele: JQuery<SVGElement>;
+
     public circle: MenuCircle;
     public cursor: MenuCursor;
     public seperator: MenuSeperator;
+    public progressBar: MenuProgress;
+
     public center: Vec2;
     public radius: number;
     public index: number;
@@ -27,6 +31,7 @@ export class RadialMenu {
         this.circle = new MenuCircle(ele.querySelector(".circle"), this);
         this.cursor = new MenuCursor(ele.querySelector(".cursor"), this);
         this.seperator = new MenuSeperator(ele.querySelector(".seperator"), this);
+        this.progressBar = new MenuProgress(ele.querySelector(".progress-bar"), this);
     }
 
     public setIndex(index: number) {
