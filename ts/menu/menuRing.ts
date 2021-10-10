@@ -1,7 +1,7 @@
 import { mod } from "../utils/mathUtils";
 import { RadialMenu } from "./radialMenu";
 
-export class MenuCircle {
+export class MenuRing {
     public $ele: JQuery<SVGPathElement>;
     constructor(public ele: SVGPathElement, public menu: RadialMenu) {
         this.$ele = $(ele);

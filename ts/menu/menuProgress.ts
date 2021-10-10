@@ -29,7 +29,7 @@ export class MenuProgress {
             //     time = time1;
             //     time1 = temp;
             // }
-            this.$ele.attr("d", this.getPath(time, time + 0.5 + Math.cos(time1) * mult));
+            this.$ele.attr("d", this.getPath(time, time + 0.5/*  + Math.cos(time1) * mult */));
             requestAnimationFrame(_.bind(this));
         }
 
@@ -62,7 +62,7 @@ export class MenuProgress {
     }
 
     public getPath(end: number, start: number = 1) {
-        const radius = this.menu.circle.innerRadius() - this.thickness;
+        const radius = this.menu.ring.innerRadius() - this.thickness;
         const startAngle = start * 360 + 0.001;
         const endAngle = end * 360;
 
