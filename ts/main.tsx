@@ -1,5 +1,5 @@
 import '../sass/style.scss'
-import { RadialMenu } from './menu/radialMenu'
+import { RootMenu } from './menu/rootMenu'
 import { StrictMode } from 'react'
 import ReactDOM from 'react-dom'
 
@@ -7,7 +7,7 @@ const root = document.getElementById('root')
 
 ReactDOM.render(
     <StrictMode>
-        <RadialMenu />
+        <RootMenu />
     </StrictMode>,
     root
 )
