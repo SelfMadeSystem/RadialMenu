@@ -1,9 +1,10 @@
-import { ColorProps, MenuComponent, MenuComponentProps } from "./menuComponent";
+import { ColorProps, ItemComponentProps } from "./menuComponent";
 import { annularSector } from "../utils/svgUtils";
+import React from "react";
 
-export class Ring extends MenuComponent<{
-    info: MenuComponentProps,
-    color: ColorProps
+export class Ring extends React.Component<{
+    info: ItemComponentProps,
+    color: ColorProps,
 }> {
     render(): JSX.Element {
         const { info, color } = this.props;
