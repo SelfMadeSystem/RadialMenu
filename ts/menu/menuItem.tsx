@@ -2,7 +2,7 @@ import { toRad } from "../utils/mathUtils";
 import { RadialMenu } from "./radialMenu";
 
 export class MenuItem {
-    public $ele: JQuery<SVGGeometryElement>;
+    /* public $ele: JQuery<SVGGeometryElement>;
     public width: number;
     public height: number;
     constructor(public ele: SVGGeometryElement, public index: number, public menu: RadialMenu) {
@@ -23,5 +23,5 @@ export class MenuItem {
         const y = radius * Math.sin(angle) + this.menu.center.y - this.height / 2;
         this.$ele.attr("x", x);
         this.$ele.attr("y", y);
-    }
+    } */
 }

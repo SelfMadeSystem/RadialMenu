@@ -5,9 +5,72 @@ import { MenuCursor } from "./menuCursor";
 import { MenuProgress } from "./menuProgress";
 import { MenuSeperator } from "./menuSeperator";
 import { MenuItem } from "./menuItem";
+import React from "react";
 
-export class RadialMenu {
-    public $ele: JQuery<SVGElement>;
+export class RadialMenu extends React.Component<{}, 
+{
+    outerRadius: number;
+    innerRadius: number;
+    thickness: number;
+    rotation: number;
+    menuItems: MenuItem[];
+    menuRings: MenuRing[];
+    menuCursor: MenuCursor;
+    menuProgress: MenuProgress;
+    menuSeperator: MenuSeperator;
+}> {
+    public center: Vec2 = new Vec2(50, 50);
+    public size: number = 100;
+
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            outerRadius: 50,
+            innerRadius: 30,
+            thickness: 20,
+            rotation: 0,
+            menuItems: [],
+            menuRings: [],
+            menuCursor: null,
+            menuProgress: null,
+            menuSeperator: null,
+        }
+    }
+
+    init() {
+        this.setState({
+            menuItems: [],
+            menuRings: [<MenuRing menu={this} outerRadius={50} thickness={20} startAngle={0} endAngle={360} fill="#cccccf" key="main"/>],
+            menuCursor: (<MenuCursor menu={this} outerRadius={50} thickness={20} fill="#0ae" divisions={8} />),
+            menuSeperator: null,
+        })
+    }
+
+    render() {
+        return (
+            <svg className="radial-menu" viewBox="0 0 100 100">
+                {this.state.menuRings}
+                {this.state.menuCursor}
+            </svg>
+        )
+    }
+
+    componentDidMount() {
+        this.init();
+    }
+
+    getAngle(x: number, y: number) {
+        let angle = Math.atan2(y, x);
+        return mod(angle, Math.PI * 2);
+    }
+
+    getRelativeCoordinates(e: React.MouseEvent<SVGElement>) {
+        let x = e.clientX - this.center.x;
+        let y = e.clientY - this.center.y;
+        return new Vec2(x, y);
+    }
+
+    /* public $ele: JQuery<SVGElement>;
 
     public ring: MenuRing;
     public cursor: MenuCursor;
@@ -53,5 +116,5 @@ export class RadialMenu {
     // You must round it yourself
     public getIndex(angle: number): number {
         return (angle - this.cursorOffset) / (360/this.maxIndex);
-    }
+    } */
 }

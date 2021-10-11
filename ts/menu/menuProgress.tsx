@@ -2,7 +2,7 @@ import { mod } from "../utils/mathUtils";
 import { RadialMenu } from "./radialMenu";
 
 export class MenuProgress {
-    public $ele: JQuery<SVGPathElement>;
+    /* public $ele: JQuery<SVGPathElement>;
     public thickness: number;
     public progress: number;
     public animated: boolean;
@@ -29,7 +29,7 @@ export class MenuProgress {
         //     //     time = time1;
         //     //     time1 = temp;
         //     // }
-        //     this.$ele.attr("d", this.getPath(time, time + 0.5/*  + Math.cos(time1) * mult */));
+        //     this.$ele.attr("d", this.getPath(time, time + 0.5/*  + Math.cos(time1) * mult *));
         //     requestAnimationFrame(_.bind(this));
         // }
 
@@ -74,5 +74,5 @@ export class MenuProgress {
         const largeArc = mod(start - end, 1) < 0.5 ? 1 : 0;
 
         return `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY}`;
-    }
+    } */
 }

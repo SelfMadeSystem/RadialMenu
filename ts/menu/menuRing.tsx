@@ -1,8 +1,33 @@
+import React from "react";
 import { mod } from "../utils/mathUtils";
+import { annularSector } from "../utils/svgUtils";
 import { RadialMenu } from "./radialMenu";
 
-export class MenuRing {
-    public $ele: JQuery<SVGPathElement>;
+export class MenuRing extends React.Component<{
+    menu: RadialMenu;
+    outerRadius?: number;
+    thickness?: number;
+    innerRadius?: number;
+    startAngle: number;
+    endAngle: number;
+    fill: string;
+    stroke?: string;
+    strokeWidth?: number;
+}> {
+    render() {
+        return (
+            <path className="ring" fill={this.props.fill} stroke={this.props.stroke} strokeWidth={this.props.strokeWidth} d={annularSector({
+                centerX: this.props.menu.center.x,
+                centerY: this.props.menu.center.y,
+                outerRadius: this.props.outerRadius,
+                innerRadius: this.props.innerRadius,
+                thickness: this.props.thickness,
+                startAngle: this.props.startAngle,
+                endAngle: this.props.endAngle,
+            })} />
+        )
+    }
+    /* public $ele: JQuery<SVGPathElement>;
     constructor(public ele: SVGPathElement, public menu: RadialMenu) {
         this.$ele = $(ele);
         this.setSize(menu.ringSize);
@@ -39,5 +64,5 @@ export class MenuRing {
         const index = mod(Math.round(this.menu.getIndex(angle)), this.menu.maxIndex);
 
         this.menu.setIndex(index)
-    }
+    } */
 }

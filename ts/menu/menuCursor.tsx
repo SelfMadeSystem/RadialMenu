@@ -1,9 +1,52 @@
+import React from "react";
 import { rotDiff } from "../utils/mathUtils";
 import { annularSector } from "../utils/svgUtils";
 import { RadialMenu } from "./radialMenu";
 
-export class MenuCursor {
-    public $ele: JQuery<SVGPathElement>;
+export class MenuCursor extends React.Component<{
+    menu: RadialMenu;
+    outerRadius?: number;
+    thickness?: number;
+    innerRadius?: number;
+    divisions: number; // number of divisions in the menu
+    fill: string;
+    stroke?: string;
+    strokeWidth?: number;
+}, {
+    rotation: number; // current rotation of the cursor
+    angle: number; // width of the cursor (min/max angle)
+}> {
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            rotation: 0,
+            angle: 360 / props.divisions
+        };
+        setTimeout(() => {
+            this.rotate(90);
+        }, 500);
+    }
+
+    render() {
+        return (
+            <path className="ring" fill={this.props.fill} stroke={this.props.stroke} strokeWidth={this.props.strokeWidth} d={annularSector({
+                centerX: this.props.menu.center.x,
+                centerY: this.props.menu.center.y,
+                outerRadius: this.props.outerRadius,
+                innerRadius: this.props.innerRadius,
+                thickness: this.props.thickness,
+                startAngle: -0.5 * this.state.angle + this.state.rotation,
+                endAngle: 0.5 * this.state.angle + this.state.rotation,
+            })} />
+        )
+    }
+
+    rotate(rotation: number) {
+        this.setState({
+            rotation: rotation,
+        });
+    }
+    /* public $ele: JQuery<SVGPathElement>;
     public widthTime = 0;
     public widthTransitionTime = 0.4;
     public width: number = 0;
@@ -69,5 +112,5 @@ export class MenuCursor {
         if (currentAngle != angle) {
             this.ele.style.transform = `rotate(${rotDiff(currentAngle, angle) + currentAngle}deg)`;
         }
-    }
+    } */
 }

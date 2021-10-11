@@ -2,7 +2,7 @@ import { toRad } from "../utils/mathUtils";
 import { RadialMenu } from "./radialMenu";
 
 export class MenuSeperator {
-    public $ele: JQuery<SVGPathElement>;
+    /* public $ele: JQuery<SVGPathElement>;
     constructor(public ele: SVGPathElement, public menu: RadialMenu) {
         this.$ele = $(ele);
         this.reset();
@@ -21,5 +21,5 @@ export class MenuSeperator {
         }
 
         this.$ele.attr("d", d);
-    }
+    } */
 }
