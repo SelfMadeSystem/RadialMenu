@@ -3,7 +3,7 @@ import { mod } from "../utils/mathUtils";
 import { Vec2 } from "../utils/vec2";
 import { Cursor } from "./cursor";
 import { ItemMenu } from "./items/itemMenu";
-import { defaultOptions, generateComponents, generateProps, InfoComponentProps } from "./menuComponent";
+import { defaultOptions, generateComponents, generateProps, InfoComponentProps, Item, Menu } from "./menuComponent";
 import { Ring } from "./ring";
 
 export class RootMenu extends React.Component<{}, {
@@ -13,7 +13,7 @@ export class RootMenu extends React.Component<{}, {
 }> {
     constructor(props: {}) {
         super(props);
-        let info: InfoComponentProps = generateProps(defaultOptions, 100, 100);
+        let info: InfoComponentProps = generateProps(defaultOptions, 100, 100, (defaultOptions.rootMenu.items as Item[])[5] as Menu);
         console.log(info);
         this.state = {
             info: info,

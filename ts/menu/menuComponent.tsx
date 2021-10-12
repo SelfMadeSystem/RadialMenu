@@ -162,13 +162,16 @@ export const defaultOptions: Options = {
     }
 };
 
-export function generateProps(opt: Options, width: number, height: number): InfoComponentProps {
+export function generateProps(opt: Options, width: number, height: number, menu?: Menu): InfoComponentProps {
+    if (menu == undefined) {
+        menu = opt.rootMenu;
+    }
     return {
-        rotationOffset: (!opt.rootMenu.itemAngleSize ? 180 / opt.rootMenu.items.length : opt.rootMenu.itemAngleSize / 2) - 90,
+        rotationOffset: (!menu.itemAngleSize ? 180 / menu.items.length : menu.itemAngleSize / 2) - 90,
         cursorRotation: 0,
-        cursorSize: !opt.rootMenu.itemAngleSize ? 360 / opt.rootMenu.items.length : opt.rootMenu.itemAngleSize,
-        itemAngleSize: !opt.rootMenu.itemAngleSize ? 360 / opt.rootMenu.items.length : opt.rootMenu.itemAngleSize,
-        itemCount: opt.rootMenu.items.length,
+        cursorSize: !menu.itemAngleSize ? 360 / menu.items.length : menu.itemAngleSize,
+        itemAngleSize: !menu.itemAngleSize ? 360 / menu.items.length : menu.itemAngleSize,
+        itemCount: menu.items.length,
         innerRadius: opt.ringSize.innerRadius,
         outerRadius: opt.ringSize.outerRadius,
         ringWidth: opt.ringSize.ringWidth,

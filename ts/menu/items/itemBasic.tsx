@@ -19,7 +19,7 @@ export class ItemBasic extends React.Component<{
         const size = outerRadius - innerRadius;
         const iconSize = size * 0.5;
         return (
-            <g>
+            <g className="item-basic">
                 {icon &&
                     <image x={x - iconSize / 2} y={y - iconSize * 0.8} width={iconSize} height={iconSize} xlinkHref={icon} />}
                 <text x={x} y={y + (icon ? iconSize*0.4 : 0)} textAnchor="middle" alignmentBaseline="central" fontSize={size * (icon ? 0.2 : 0.3)}>{name}</text>

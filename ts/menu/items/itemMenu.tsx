@@ -11,7 +11,7 @@ export class ItemMenu extends React.Component<{
 
     render() {
         return (
-            <g className="itemMenu">
+            <g className="item-menu">
                 {this.props.children}
             </g>
         );
