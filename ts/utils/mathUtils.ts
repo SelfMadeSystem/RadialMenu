@@ -15,6 +15,10 @@ export function rotDiff(a: number, b: number): number {
     return diff > 180 ? diff - 360 : diff;
 }
 
+export function approx(a: number, b: number, epsilon: number = 0.001): boolean {
+    return Math.abs(a - b) < epsilon;
+}
+
 export function toDeg(rad: number): number {
     return rad * 180 / Math.PI;
 }

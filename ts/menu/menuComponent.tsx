@@ -4,9 +4,9 @@ import { ItemBasic } from "./items/itemBasic";
 import { ItemMenu } from "./items/itemMenu";
 
 export interface CursorComponentProps {
-    rotationOffset: number;
     cursorRotation: number;
     cursorSize: number;
+    cursorColor: ColorProps;
 }
 
 export interface MenuComponentProps {
@@ -32,7 +32,8 @@ export interface ColorProps {
     strokeWidth?: number;
 }
 
-export interface InfoComponentProps extends CursorComponentProps, MenuComponentProps, RingComponentProps, ViewportComponentProps {
+export interface InfoComponentProps extends MenuComponentProps, RingComponentProps, ViewportComponentProps {
+    rotationOffset: number;
 }
 
 export interface Item {
@@ -168,8 +169,6 @@ export function generateProps(opt: Options, width: number, height: number, menu?
     }
     return {
         rotationOffset: (!menu.itemAngleSize ? 180 / menu.items.length : menu.itemAngleSize / 2) - 90,
-        cursorRotation: 0,
-        cursorSize: !menu.itemAngleSize ? 360 / menu.items.length : menu.itemAngleSize,
         itemAngleSize: !menu.itemAngleSize ? 360 / menu.items.length : menu.itemAngleSize,
         itemCount: menu.items.length,
         innerRadius: opt.ringSize.innerRadius,
