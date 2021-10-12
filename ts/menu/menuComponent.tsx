@@ -1,5 +1,7 @@
 import React from "react";
 import { Vec2 } from "../utils/vec2";
+import { ItemBasic } from "./items/itemBasic";
+import { ItemMenu } from "./items/itemMenu";
 
 export interface CursorComponentProps {
     rotationOffset: number;
@@ -7,7 +9,7 @@ export interface CursorComponentProps {
     cursorSize: number;
 }
 
-export interface MenuComponentProps {   
+export interface MenuComponentProps {
     itemAngleSize: number;
     itemCount: number;
 }
@@ -30,7 +32,7 @@ export interface ColorProps {
     strokeWidth?: number;
 }
 
-export interface ItemComponentProps extends CursorComponentProps, MenuComponentProps, RingComponentProps, ViewportComponentProps {
+export interface InfoComponentProps extends CursorComponentProps, MenuComponentProps, RingComponentProps, ViewportComponentProps {
 }
 
 export interface Item {
@@ -46,7 +48,7 @@ export interface Menu extends Item {
     cursorColor?: ColorProps; // Uses default cursor color if not specified
     itemAngleSize?: number; // Calculates angle size automatically via  360/items.length  if not specified
     ringSize?: RingComponentProps; // Uses default ring size if not specified
-    items: Item[] | (() => Item[]); // Returns an array of items
+    items: Item[] | ((menu: Menu) => Item[]); // Returns an array of items
 }
 
 export interface Options {
@@ -56,7 +58,7 @@ export interface Options {
     rootMenu: Menu;
 }
 
-const defaultOptions: Options = {
+export const defaultOptions: Options = {
     ringColor: {
         fill: "#cccccf",
         stroke: "#000",
@@ -98,7 +100,7 @@ const defaultOptions: Options = {
                 id: "root.3",
                 name: "Item 3",
                 description: "root.3",
-                icon: "",
+                icon: "/img/menu/location-item.svg",
                 onClick: (item: Item) => {
                     console.log(item.name);
                 }
@@ -125,7 +127,7 @@ const defaultOptions: Options = {
                 id: "root.6",
                 name: "Menu 6",
                 description: "root.6",
-                icon: "",
+                icon: "/img/menu/airplane-item.svg",
                 onClick: (item: Item) => {
                     console.log(item.name);
                 },
@@ -159,3 +161,43 @@ const defaultOptions: Options = {
         ]
     }
 };
+
+export function generateProps(opt: Options, width: number, height: number): InfoComponentProps {
+    return {
+        rotationOffset: (!opt.rootMenu.itemAngleSize ? 180 / opt.rootMenu.items.length : opt.rootMenu.itemAngleSize / 2) - 90,
+        cursorRotation: 0,
+        cursorSize: !opt.rootMenu.itemAngleSize ? 360 / opt.rootMenu.items.length : opt.rootMenu.itemAngleSize,
+        itemAngleSize: !opt.rootMenu.itemAngleSize ? 360 / opt.rootMenu.items.length : opt.rootMenu.itemAngleSize,
+        itemCount: opt.rootMenu.items.length,
+        innerRadius: opt.ringSize.innerRadius,
+        outerRadius: opt.ringSize.outerRadius,
+        ringWidth: opt.ringSize.ringWidth,
+        width: width,
+        height: height,
+        center: new Vec2(width / 2, height / 2),
+    };
+}
+
+export function generateComponents(menu: Menu, info: InfoComponentProps): JSX.Element {
+    let items: JSX.Element[] = [];
+    if (menu.items instanceof Function) {
+        let itemCount = 0;
+        items = menu.items(menu).map((item: Item) => {
+            return generateItem(item, info, itemCount++, menu);
+        });
+    } else {
+        items = menu.items.map((item: Item, index: number) => {
+            return generateItem(item, info, index, menu);
+        });
+    }
+
+    return <g>
+        <ItemMenu key={menu.id} menu={menu} info={info}>
+            {items}
+        </ItemMenu>
+    </g>;
+}
+
+function generateItem(item: Item, info: InfoComponentProps, index: number, menu: Menu): JSX.Element {
+    return <ItemBasic key={item.id} item={item} info={info} index={index} parent={menu} />;
+}

@@ -3,35 +3,26 @@ import { mod } from "../utils/mathUtils";
 import { Vec2 } from "../utils/vec2";
 import { Cursor } from "./cursor";
 import { ItemMenu } from "./items/itemMenu";
-import { ItemComponentProps } from "./menuComponent";
+import { defaultOptions, generateComponents, generateProps, InfoComponentProps } from "./menuComponent";
 import { Ring } from "./ring";
 
 export class RootMenu extends React.Component<{}, {
-    info: ItemComponentProps;
+    info: InfoComponentProps;
     // elements: JSX.Element[];
-    elementCount: number;
+    root: JSX.Element;
 }> {
     constructor(props: {}) {
         super(props);
-        let eleCount = 8;
+        let info: InfoComponentProps = generateProps(defaultOptions, 100, 100);
+        console.log(info);
         this.state = {
-            elementCount: eleCount,
-            info: {
-                rotationOffset: 0,
-                cursorRotation: 0,
-                cursorSize: 360 / eleCount,
-                innerRadius: 30,
-                outerRadius: 50,
-                ringWidth: 20,
-                width: 100,
-                height: 100,
-                center: new Vec2(50, 50),
-            }
+            info: info,
+            root: generateComponents(defaultOptions.rootMenu, info)
         }
     }
 
     componentDidMount() {
-        setInterval(() => {
+        /* setInterval(() => {
             let x = new Date().getTime();
             let w = 12000;
             let h = 360
@@ -43,14 +34,17 @@ export class RootMenu extends React.Component<{}, {
                 info.cursorRotation = e;
                 return { info: info };
             })
-        }, 1000 / 60);
+        }, 1000 / 60); */
     }
 
     render() {
         return (
             <svg className="root-menu" viewBox="0 0 100 100">
-                <Ring info={this.state.info} color={{ fill: "grey" }} />
-                <Cursor info={this.state.info} color={{ fill: "black" }} />
+                <Ring info={this.state.info} color={{ fill: "#cccccf" }} />
+                <Cursor info={this.state.info} color={{ fill: "#0ae" }} />
+                {/* 
+                 */}
+                {this.state.root}
             </svg>
         );
     }

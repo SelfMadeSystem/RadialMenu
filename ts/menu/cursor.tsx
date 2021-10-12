@@ -1,9 +1,9 @@
-import { ItemComponentProps, ColorProps } from "./menuComponent";
+import { InfoComponentProps, ColorProps } from "./menuComponent";
 import { annularSector } from "../utils/svgUtils";
 import React from "react";
 
 export class Cursor extends React.Component<{
-    info: ItemComponentProps,
+    info: InfoComponentProps,
     color: ColorProps
 }> {
     render(): JSX.Element {

@@ -1,9 +1,9 @@
-import { ColorProps, ItemComponentProps } from "./menuComponent";
+import { ColorProps, InfoComponentProps } from "./menuComponent";
 import { annularSector } from "../utils/svgUtils";
 import React from "react";
 
 export class Ring extends React.Component<{
-    info: ItemComponentProps,
+    info: InfoComponentProps,
     color: ColorProps,
 }> {
     render(): JSX.Element {

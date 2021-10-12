@@ -1,9 +1,9 @@
 import React from "react";
-import { Menu, ItemComponentProps } from "../menuComponent";
+import { Menu, InfoComponentProps } from "../menuComponent";
 
 export class ItemMenu extends React.Component<{
     menu: Menu;
-    info: ItemComponentProps;
+    info: InfoComponentProps;
 }, any> {
     constructor(props: any) {
         super(props);
