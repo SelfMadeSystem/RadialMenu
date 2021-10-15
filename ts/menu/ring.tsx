@@ -5,9 +5,10 @@ import React from "react";
 export class Ring extends React.Component<{
     info: InfoComponentProps,
     color: ColorProps,
+    onMouseMove: (e: React.MouseEvent<SVGPathElement, MouseEvent>) => void,
 }> {
     render(): JSX.Element {
-        const { info, color } = this.props;
+        const { info, color, onMouseMove } = this.props;
         const { center, innerRadius, outerRadius, ringWidth } = info;
         const { fill, stroke, strokeWidth } = color;
         return <path className="ring" d={annularSector({
@@ -18,6 +19,6 @@ export class Ring extends React.Component<{
             innerRadius: innerRadius,
             outerRadius: outerRadius,
             thickness: ringWidth
-        })} fill={fill} stroke={stroke} strokeWidth={strokeWidth}></path>;
+        })} fill={fill} stroke={stroke} strokeWidth={strokeWidth} onMouseMove={onMouseMove}></path>;
     }    
 }
