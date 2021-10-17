@@ -4,11 +4,16 @@ body {
 
 #root-menu {
   display: block;
+  position: absolute;
   margin: auto;
   max-width: 100vw;
   max-height: 100vh;
 }
 
 .item-basic {
+  pointer-events: none;
+}
+
+.cursor {
   pointer-events: none;
 }

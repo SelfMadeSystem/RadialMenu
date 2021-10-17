@@ -51,6 +51,10 @@ export class Vec2 {
         return this.x * v.y - this.y * v.x;
     }
 
+    public lerp(v: Vec2, t: number): Vec2 {
+        return this.add(v.sub(this).scale(t));
+    }
+
     public lengthSq(): number {
         return this.x * this.x + this.y * this.y;
     }

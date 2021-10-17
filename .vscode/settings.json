@@ -2,5 +2,6 @@
     "files.watcherExclude": {
         "**/target": true
     },
-    "svg.preview.background": "dark-transparent"
+    "svg.preview.background": "dark-transparent",
+    "cmake.configureOnOpen": false
 }

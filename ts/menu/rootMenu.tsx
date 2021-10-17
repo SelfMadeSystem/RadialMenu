@@ -51,23 +51,14 @@ export class RootMenu extends React.Component<{}, {
                 return { info: info };
             })
         }, 1000 / 60); */
-        // const self = this;
-        // let i = 0;
-        // let add = 1;
-        // setInterval(() => {
-        //     i += add;
-        //     i = mod(i, 6);
-        //     // if (i >= 5) {
-        //     //     add = -1;
-        //     // } else if (i <= 0) {
-        //     //     add = 1;
-        //     // }
-        //     self.setCursor({
-        //         cursorRotation: 360 / 6 * i,
-        //         cursorSize: this.state.info.itemAngleSize,
-        //         cursorColor: { fill: "#0ae" },
-        //     });
-        // }, 1000);
+        const self = this;
+        setInterval(() => {
+            this.setCursor({
+                cursorRotation: this.state.cursor.cursorRotation,
+                cursorSize: mod((this.state.cursor.cursorSize - this.state.info.itemAngleSize) + 10, 50) + this.state.info.itemAngleSize,
+                cursorColor: { fill: "#0ae" },
+            });
+        }, 1000);
     }
 
     render() {
@@ -83,15 +74,15 @@ export class RootMenu extends React.Component<{}, {
     }
 
     onMouseMove(e: React.MouseEvent<SVGPathElement, MouseEvent>) {
-        const { clientX, clientY } = e;
+        const { offsetX, offsetY } = e.nativeEvent;
         const { info } = this.state;
         const { itemAngleSize, rotationOffset, } = info;
         const { x, y } = this.getCenterOfPage();
-        const angle = mod(toDeg(Math.atan2(clientY - y, clientX - x)) + rotationOffset, 360);
+        const angle = mod(toDeg(Math.atan2(offsetY - y, offsetX - x)) + rotationOffset, 360);
         const index = this.indexFromAngle(angle);
         this.setCursor({
             cursorRotation: index * itemAngleSize,
-            cursorSize: itemAngleSize,
+            cursorSize: this.state.cursor.cursorSize,
             cursorColor: { fill: "#0ae" },
         });
     }

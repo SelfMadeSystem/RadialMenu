@@ -2,11 +2,9 @@ import { InfoComponentProps, ColorProps, CursorComponentProps } from "./menuComp
 import { annularSector } from "../utils/svgUtils";
 import React from "react";
 import { Vec2 } from "../utils/vec2";
+import { approx, clamp, lerp, mod, rotDiff } from "../utils/mathUtils";
 
-export class Cursor extends React.Component<{
-    info: InfoComponentProps,
-    cursorInfo: CursorComponentProps,
-}> {
+class CursorInfo {
     center: Vec2;
     innerRadius: number;
     outerRadius: number;
@@ -17,50 +15,94 @@ export class Cursor extends React.Component<{
     stroke: string;
     strokeWidth: number;
     path: string;
-    transformRotation: string;
-    transformPosition: Vec2;
-    get transform () {
-        return `translate(${this.transformPosition.x}px, ${this.transformPosition.y}px) rotate(${this.transformRotation})`;
+    get transform() {
+        return `translate(${this.center.x}px, ${this.center.y}px) rotate(${this.rotation}deg)`;
     }
+
+    clone() {
+        var clone = new CursorInfo();
+        clone.center = this.center;
+        clone.innerRadius = this.innerRadius;
+        clone.outerRadius = this.outerRadius;
+        clone.ringWidth = this.ringWidth;
+        clone.annularAngle = this.annularAngle;
+        clone.rotation = this.rotation;
+        clone.fill = this.fill;
+        clone.stroke = this.stroke;
+        clone.strokeWidth = this.strokeWidth;
+        clone.path = this.path;
+        return clone;
+    }
+
+    equals(other: CursorInfo) {
+        return this.center.equals(other.center) &&
+            this.innerRadius === other.innerRadius &&
+            this.outerRadius === other.outerRadius &&
+            this.ringWidth === other.ringWidth &&
+            this.annularAngle === other.annularAngle &&
+            this.rotation === other.rotation /* &&
+            this.fill === other.fill &&
+            this.stroke === other.stroke &&
+            this.strokeWidth === other.strokeWidth &&
+            this.path === other.path */;
+    }
+
+    approxEquals(other: CursorInfo) {
+        return approx(this.center.x, other.center.x) &&
+            approx(this.center.y, other.center.y) &&
+            approx(this.innerRadius, other.innerRadius) &&
+            approx(this.outerRadius, other.outerRadius) &&
+            approx(this.ringWidth, other.ringWidth) &&
+            approx(this.annularAngle, other.annularAngle) &&
+            approx(rotDiff(this.rotation, other.rotation), 0) /* &&
+            this.fill === other.fill &&
+            this.stroke === other.stroke &&
+            this.strokeWidth === other.strokeWidth &&
+            this.path === other.path */;
+    }
+}
+
+export class Cursor extends React.Component<{
+    info: InfoComponentProps,
+    cursorInfo: CursorComponentProps,
+}> {
+    at: CursorInfo = undefined;
+    to: CursorInfo = new CursorInfo();
+    recalcPath: boolean = true;
 
     render(): JSX.Element {
         const { cursorInfo } = this.props;
         const { cursorColor } = cursorInfo;
         const { fill, stroke, strokeWidth } = cursorColor;
-        return <path className="cursor" d={this.getPath()} fill={fill} stroke={stroke} strokeWidth={strokeWidth} style={{transform: this.transform}}></path>;
+        const path = this.getPath()
+        const { transform } = this.at;
+        return <path className="cursor" d={path} fill={fill} stroke={stroke} strokeWidth={strokeWidth} style={{ transform: transform }}></path>;
     }
 
     getPath(): string {
         this.resetPath();
-        return this.path;
+        return this.at.path;
+    }
+
+    calcPath(info: CursorInfo): string {
+        return annularSector({
+            centerX: 0,
+            centerY: 0,
+            startAngle: -info.annularAngle / 2,
+            endAngle: info.annularAngle / 2,
+            innerRadius: info.innerRadius,
+            outerRadius: info.outerRadius,
+            thickness: info.ringWidth
+        })
     }
 
     resetPath(): void {
         const { info, cursorInfo } = this.props;
-        const howToUpdate = this._getHowToUpdatePath();
         this.updateValues(info, cursorInfo);
-        switch (howToUpdate) {
-            case 1:
-                this.moveCursor(this.center);
-                break;
-            case 3:
-                this.moveCursor(this.center);
-            case 2:
-                this.rotateCursor(this.rotation);
-                break;
-            case 4:
-                this.path = annularSector({
-                    centerX: 0,
-                    centerY: 0,
-                    startAngle: -this.annularAngle / 2,
-                    endAngle: this.annularAngle / 2,
-                    innerRadius: this.innerRadius,
-                    outerRadius: this.outerRadius,
-                    thickness: this.ringWidth
-                })
-                this.rotateCursor(this.rotation);
-                this.moveCursor(this.center);
-                break;
+        if (this._shouldRecalcPath()) {
+            this.recalcPath = false;
+            this.at.path = this.calcPath(this.at);
+            this.beginAnimation();
         }
     }
 
@@ -68,78 +110,64 @@ export class Cursor extends React.Component<{
         const { center, rotationOffset, innerRadius, outerRadius, ringWidth } = info;
         const { cursorColor, cursorSize, cursorRotation } = cursorInfo;
         const { fill, stroke, strokeWidth } = cursorColor;
-        this.center = center;
-        this.innerRadius = innerRadius;
-        this.outerRadius = outerRadius;
-        this.ringWidth = ringWidth;
-        this.annularAngle = cursorSize;
-        this.rotation = cursorRotation + rotationOffset;
-        this.fill = fill;
-        this.stroke = stroke;
-        this.strokeWidth = strokeWidth;
+        this.to.center = center;
+        this.to.innerRadius = innerRadius;
+        this.to.outerRadius = outerRadius;
+        this.to.ringWidth = ringWidth;
+        this.to.annularAngle = cursorSize;
+        this.to.rotation = cursorRotation + rotationOffset;
+        this.to.fill = fill;
+        this.to.stroke = stroke;
+        this.to.strokeWidth = strokeWidth;
+        if (this.at === undefined) {
+            this.at = this.to.clone();
+        }
     }
 
-    rotateCursor(rotation: number): void {
-        this.rotation = rotation;
-        this.transformRotation = `${rotation}deg`;
+    _shouldRecalcPath(): boolean {
+        if (this.recalcPath || this.to.path === undefined) {
+            return true;
+        }
+        const { innerRadius, outerRadius, ringWidth } = this.props.info;
+        const { cursorSize } = this.props.cursorInfo;
+        if (innerRadius !== this.to.innerRadius || outerRadius !== this.to.outerRadius || ringWidth !== this.to.ringWidth || cursorSize !== this.to.annularAngle) {
+            return true;
+        }
+        return false;
     }
 
-    moveCursor(position: Vec2): void {
-        this.transformPosition = position;
+    _id: number;
+    _lastFrame: number;
+    beginAnimation() {
+        if (this._id) cancelAnimationFrame(this._id);
+        this._id = requestAnimationFrame(this.animate);
     }
 
-    // Gets the most efficient way to update the path
-    // 0. Don't update          No changes
-    // 1. Move path             Only the center changed
-    // 2. Rotate path           Only the rotation changed (either cursor rotation or rotation offset)
-    // 3. Rotate and move path  Both the center and rotation changed
-    // 4. Update everything     Radius changed or path not defined
-    _getHowToUpdatePath(): number {
-        if (this.path === undefined) {
-            return 4;
+    animate = (timestamp: number) => {
+        if (!this._lastFrame) {
+            this._lastFrame = timestamp;
         }
-        const { center, innerRadius, outerRadius, ringWidth } = this.props.info;
-        const { cursorSize, cursorRotation } = this.props.cursorInfo;
-        if (innerRadius !== this.innerRadius || outerRadius !== this.outerRadius || ringWidth !== this.ringWidth || cursorSize !== this.annularAngle) {
-            return 4;
+        const delta = timestamp - this._lastFrame;
+        this._lastFrame = timestamp;
+        this.update(delta);
+        if (!this.at.approxEquals(this.to)) {
+            this.forceUpdate();
         }
-        var centerChanged = center.x !== this.center.x || center.y !== this.center.y;
-        var rotationChanged = cursorRotation !== this.rotation;
-        if (centerChanged && rotationChanged) {
-            return 3;
-        }
-        if (centerChanged) {
-            return 1;
-        }
-        if (rotationChanged) {
-            return 2;
-        }
-        return 0;
+        this.beginAnimation();
     }
 
-    /*
-    _id: number | NodeJS.Timer;
-    animateCursor() {
-        if (this._id) clearInterval(this._id as NodeJS.Timer);
-        this._id = setInterval(() => {
-            this.setState(state => {
-                const { currentCursor, toCursor } = state;
-                const { cursorRotation, cursorSize } = currentCursor;
-                const { cursorRotation: toCursorRotation, cursorSize: toCursorSize } = toCursor;
-                const newCursorRotation = mod(clamp(rotDiff(cursorRotation, toCursorRotation) / 6, -5, 5) + cursorRotation, 360);
-                const newCursorSize = cursorSize + (toCursorSize - cursorSize) / 8;
-                return {
-                    currentCursor: {
-                        cursorRotation: newCursorRotation,
-                        cursorSize: newCursorSize,
-                        cursorColor: { fill: "#0ae" },
-                    }
-                }
-            })
-            const { currentCursor, toCursor } = this.state;
-            if (approx(currentCursor.cursorRotation, toCursor.cursorRotation, 0.01) && approx(currentCursor.cursorSize, toCursor.cursorSize)) {
-                clearInterval(this._id as NodeJS.Timer);
-            }
-        }, 1000 / 60);
-    }*/
+    update(delta: number) {
+        const t = Math.min(delta / 1000, 1);
+        const { center: toCenter, innerRadius: toInnerRadius, outerRadius: toOuterRadius, ringWidth: toRingWidth, annularAngle: toAnnularAngle, rotation: toRotation } = this.to;
+        const { center: atCenter, innerRadius: atInnerRadius, outerRadius: atOuterRadius, ringWidth: atRingWidth, annularAngle: atAnnularAngle, rotation: atRotation } = this.at;
+        this.at.center = atCenter.lerp(toCenter, t);
+        this.at.innerRadius = lerp(atInnerRadius, toInnerRadius, t);
+        this.at.outerRadius = lerp(atOuterRadius, toOuterRadius, t);
+        this.at.ringWidth = lerp(atRingWidth, toRingWidth, t);
+        this.at.annularAngle = lerp(atAnnularAngle, toAnnularAngle, Math.min(delta / 250, 1));
+        this.at.rotation = mod(clamp(rotDiff(atRotation, toRotation) * Math.min(t * 5, 1), -delta, delta) + atRotation, 360);
+        // this.at.fill = lerpColor(fill, toFill, t);
+        // this.at.stroke = lerpColor(stroke, toStroke, t);
+        this.at.strokeWidth = lerp(this.at.strokeWidth, this.to.strokeWidth, t);
+    }
 }
