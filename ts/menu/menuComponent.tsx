@@ -7,6 +7,7 @@ export interface CursorComponentProps {
     cursorRotation: number;
     cursorSize: number;
     cursorColor: ColorProps;
+    cursorScale: number;
 }
 
 export interface MenuComponentProps {
@@ -15,9 +16,9 @@ export interface MenuComponentProps {
 }
 
 export interface RingComponentProps {
-    innerRadius?: number;
-    outerRadius?: number;
-    ringWidth?: number;
+    innerRadius: number;
+    outerRadius: number;
+    ringWidth: number;
 }
 
 export interface ViewportComponentProps {

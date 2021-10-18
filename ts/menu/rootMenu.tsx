@@ -27,6 +27,7 @@ export class RootMenu extends React.Component<{}, {
                 cursorRotation: 0,
                 cursorSize: info.itemAngleSize,
                 cursorColor: { fill: "#0ae" },
+                cursorScale: 1,
             },
             svg: null,
         }
@@ -55,8 +56,9 @@ export class RootMenu extends React.Component<{}, {
         setInterval(() => {
             this.setCursor({
                 cursorRotation: this.state.cursor.cursorRotation,
-                cursorSize: mod((this.state.cursor.cursorSize - this.state.info.itemAngleSize) + 10, 50) + this.state.info.itemAngleSize,
-                cursorColor: { fill: "#0ae" },
+                cursorSize: this.state.cursor.cursorSize,
+                cursorColor: { fill: this.state.cursor.cursorColor.fill },
+                cursorScale: mod((this.state.cursor.cursorScale - 0.6) - 0.1, 0.5) + 0.6,
             });
         }, 1000);
     }
@@ -83,7 +85,8 @@ export class RootMenu extends React.Component<{}, {
         this.setCursor({
             cursorRotation: index * itemAngleSize,
             cursorSize: this.state.cursor.cursorSize,
-            cursorColor: { fill: "#0ae" },
+            cursorColor: { fill: this.state.cursor.cursorColor.fill },
+            cursorScale: this.state.cursor.cursorScale,
         });
     }
 
