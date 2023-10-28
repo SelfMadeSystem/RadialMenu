@@ -1,4 +1,4 @@
-import { RadialMenuColors, RadialMenuProps, RadialMenuRing, RadialMenuItemProps, RadialMenuRingProps } from ".";
+import { RadialMenuColors, RadialMenuProps, RadialMenuRing, RadialMenuRingProps, RadialMenuOverlay, RadialMenuInput } from ".";
 import { wrapAngle } from "./utils";
 
 export const defaultColors: RadialMenuColors = {
@@ -8,6 +8,8 @@ export const defaultColors: RadialMenuColors = {
     // centerBg: '#0000',
     centerText: '#000',
     highlightOverlay: '#000a', // just darkens the rest of the ring
+    sliderBg: '#0ae',
+    sliderFg: '#000',
 };
 
 
@@ -15,6 +17,8 @@ export class RadialMenu {
     public colors: RadialMenuColors;
     public currentRing: RadialMenuRing;
     public prevRing?: RadialMenuRing;
+    public currentOverlay?: RadialMenuOverlay;
+    public currentInput: RadialMenuInput;
     public currentRingAmount: number = 1; // from 0 to 1. used for animations
     public rootRingProps: RadialMenuRingProps;
 
@@ -25,7 +29,7 @@ export class RadialMenu {
         props: RadialMenuProps,
     ) {
         this.colors = { ...defaultColors, ...props.colors };
-        this.currentRing = props.rootRing;
+        this.currentInput = this.currentRing = props.rootRing;
 
         const radius = Math.min(canvas.width, canvas.height) / 2;
         let rootRingProps: RadialMenuRingProps = {
@@ -51,11 +55,14 @@ export class RadialMenu {
         this.canvas.addEventListener('pointerdown', (e) => {
             this.onPointerDown(e);
         });
+        this.canvas.addEventListener('pointerup', (e) => {
+            this.onPointerUp(e);
+        });
 
         this.update();
     }
 
-    public getCurrentItemProps(): RadialMenuItemProps {
+    public getCurrentRingProps(): RadialMenuRingProps {
         const { startAngle, endAngle } = this.rootRingProps;
         const angle = startAngle + (endAngle - startAngle) * this.currentRingAmount;
 
@@ -66,7 +73,7 @@ export class RadialMenu {
         };
     }
 
-    public getPrevItemProps(): RadialMenuItemProps {
+    public getPrevRingProps(): RadialMenuRingProps {
         const { startAngle, endAngle } = this.rootRingProps;
         const angle = startAngle + (endAngle - startAngle) * this.currentRingAmount;
 
@@ -80,7 +87,18 @@ export class RadialMenu {
     public setRing(ring: RadialMenuRing) {
         this.prevRing = this.currentRing;
         this.currentRing = ring;
+        this.currentInput = ring;
         this.currentRingAmount = 0;
+    }
+
+    public setOverlay(overlay: RadialMenuOverlay) {
+        this.currentOverlay = overlay;
+        this.currentInput = overlay;
+    }
+
+    public unsetOverlay() {
+        this.currentOverlay = undefined;
+        this.currentInput = this.currentRing;
     }
 
     public draw(delta: number, drawPrev: boolean) {
@@ -90,10 +108,15 @@ export class RadialMenu {
         }
 
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.currentRing.drawRing(ctx, { colors: this.colors, delta });
+        const props = { colors: this.colors, delta, menu: this };
+        this.currentRing.drawRing(ctx, props);
 
         if (drawPrev && this.prevRing) {
-            this.prevRing.drawRing(ctx, { colors: this.colors, delta });
+            this.prevRing.drawRing(ctx, props);
+        }
+
+        if (this.currentOverlay) {
+            this.currentOverlay.drawOverlay(ctx, props);
         }
     }
 
@@ -112,8 +135,8 @@ export class RadialMenu {
             this.currentRingAmount += delta / 500; // TODO: make this configurable
             this.currentRingAmount = Math.min(this.currentRingAmount, 1);
 
-            this.prevRing?.updateRingProps(this.getPrevItemProps());
-            this.currentRing.updateRingProps(this.getCurrentItemProps());
+            this.prevRing?.updateRingProps(this.getPrevRingProps());
+            this.currentRing.updateRingProps(this.getCurrentRingProps());
         }
 
         this.draw(delta, drawPrev);
@@ -131,19 +154,29 @@ export class RadialMenu {
         return wrapAngle(angle, this.rootRingProps.startAngle);
     }
 
+    private getInputRingProps(): RadialMenuRingProps {
+        if ("ringProps" in this.currentInput) {
+            return this.currentInput.ringProps as RadialMenuRingProps ?? this.currentRing.ringProps;
+        }
+
+        return this.currentRing.ringProps;
+    }
+
     private onPointerMove(e: PointerEvent) {
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        if (this.currentRing.ringProps) {
-            const { center, outerRadius, innerRadius, startAngle, endAngle } = this.currentRing.ringProps;
+        const ringProps = this.getInputRingProps();
+
+        if (ringProps) {
+            const { center, outerRadius, innerRadius, startAngle, endAngle } = ringProps;
             const angle = this.getPointerAngle(e);
 
             if (angle >= startAngle && angle <= endAngle) {
                 const distance = Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2);
                 if (distance > innerRadius && distance < outerRadius) {
-                    this.currentRing.onRingHover(this, angle, distance);
+                    this.currentInput.onRingHover(this, angle, distance, e.buttons === 1);
                 }
             }
         }
@@ -154,16 +187,40 @@ export class RadialMenu {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        if (this.currentRing.ringProps) {
-            const { center, outerRadius, innerRadius, startAngle, endAngle } = this.currentRing.ringProps;
+        const ringProps = this.getInputRingProps();
+
+        if (ringProps) {
+            const { center, outerRadius, innerRadius, startAngle, endAngle } = ringProps;
             const angle = this.getPointerAngle(e);
 
             if (angle >= startAngle && angle <= endAngle) {
                 const distance = Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2);
                 if (distance > innerRadius && distance < outerRadius) {
-                    this.currentRing.onRingClick(this, angle, distance);
+                    if (this.currentInput.onRingClick)
+                        this.currentInput.onRingClick(this, angle, distance);
                 } else if (distance <= innerRadius) {
-                    this.currentRing.onCenterClick(this);
+                    this.currentInput.onCenterClick(this);
+                }
+            }
+        }
+    }
+
+    private onPointerUp(e: PointerEvent) {
+        const rect = this.canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const ringProps = this.getInputRingProps();
+
+        if (ringProps) {
+            const { center, outerRadius, innerRadius, startAngle, endAngle } = ringProps;
+            const angle = this.getPointerAngle(e);
+
+            if (angle >= startAngle && angle <= endAngle) {
+                const distance = Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2);
+                if (distance > innerRadius && distance < outerRadius) {
+                    if (this.currentInput.onRingUnclick)
+                        this.currentInput.onRingUnclick(this, angle, distance);
                 }
             }
         }
