@@ -16,6 +16,8 @@ export class RadialMenu {
     public currentRing: RadialMenuRing;
     public rootItemProps: RadialMenuItemProps;
 
+    private prevTime: number = 0;
+
     constructor(
         public readonly canvas: HTMLCanvasElement,
         props: RadialMenuProps,
@@ -57,18 +59,25 @@ export class RadialMenu {
         // TODO: animate
     }
 
-    public draw() {
+    public draw(delta: number) {
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
             throw new Error('Could not get canvas context.');
         }
 
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.currentRing.drawRing(ctx, { colors: this.colors });
+        this.currentRing.drawRing(ctx, { colors: this.colors, delta });
     }
 
     public update() {
-        this.draw();
+        const time = performance.now();
+        if (!this.prevTime) {
+            this.prevTime = time;
+        }
+
+        const delta = time - this.prevTime;
+        this.draw(delta);
+        this.prevTime = time;
 
         requestAnimationFrame(() => this.update());
     }

@@ -18,6 +18,7 @@ export type RadialMenuProps = {
 
 export type RadialMenuDrawProps = {
     colors: RadialMenuColors;
+    delta: number;
 };
 
 export type RadialMenuItemProps = {

@@ -1,12 +1,13 @@
 import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRing } from "..";
 import { RadialMenu } from "../radial-menu";
-import { getTextPosition, pathItem } from "../utils";
+import { angleDiff, clampSym, getTextPosition, pathItem } from "../utils";
 
 export class RingMenu implements RadialMenuRing {
     public parent?: RadialMenuRing | undefined;
     public itemProps: RadialMenuItemProps;
     private selectedIndex: number = 0;
     private cursorAngle: number = 0;
+    private cursorAngleTarget: number = 0;
     private anglePerItem: number = 0;
 
     constructor(
@@ -72,6 +73,14 @@ export class RingMenu implements RadialMenuRing {
             endAngle: this.cursorAngle + this.anglePerItem,
         };
 
+        if (this.cursorAngle !== this.cursorAngleTarget) {
+            const delta = angleDiff(this.cursorAngle, this.cursorAngleTarget);
+
+            // TODO: make sure it doesn't go out of bounds
+
+            this.cursorAngle += clampSym(delta, props.delta * 0.01);
+        }
+
         pathItem(ctx, cursorProps);
 
         ctx.fillStyle = props.colors.cursor;
@@ -116,10 +125,9 @@ export class RingMenu implements RadialMenuRing {
     }
 
     public onRingHover(_menu: RadialMenu, angle: number, _distance: number): void {
-        console.log(angle);
         const index = this.getItemIndexAtAngle(angle);
         if (index !== undefined) {
-            this.cursorAngle = this.getCursorAngle(index);
+            this.cursorAngleTarget = this.getCursorAngle(index);
             this.selectedIndex = index;
         }
     }
