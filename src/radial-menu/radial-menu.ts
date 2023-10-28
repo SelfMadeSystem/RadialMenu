@@ -1,4 +1,4 @@
-import { RadialMenuColors, RadialMenuProps, RadialMenuRing, RadialMenuItemProps } from ".";
+import { RadialMenuColors, RadialMenuProps, RadialMenuRing, RadialMenuItemProps, RadialMenuRingProps } from ".";
 import { wrapAngle } from "./utils";
 
 export const defaultColors: RadialMenuColors = {
@@ -14,7 +14,9 @@ export const defaultColors: RadialMenuColors = {
 export class RadialMenu {
     public colors: RadialMenuColors;
     public currentRing: RadialMenuRing;
-    public rootItemProps: RadialMenuItemProps;
+    public prevRing?: RadialMenuRing;
+    public currentRingAmount: number = 1; // from 0 to 1. used for animations
+    public rootRingProps: RadialMenuRingProps;
 
     private prevTime: number = 0;
 
@@ -26,7 +28,7 @@ export class RadialMenu {
         this.currentRing = props.rootRing;
 
         const radius = Math.min(canvas.width, canvas.height) / 2;
-        let rootItemProps: RadialMenuItemProps = {
+        let rootRingProps: RadialMenuRingProps = {
             center: { x: canvas.width / 2, y: canvas.height / 2 },
             outerRadius: radius,
             innerRadius: radius * 0.5,
@@ -34,12 +36,12 @@ export class RadialMenu {
             endAngle: Math.PI * 1.5, // 12 o'clock, but the other way around
         };
 
-        this.rootItemProps = {
-            ...rootItemProps,
-            ...props.itemProps,
+        this.rootRingProps = {
+            ...rootRingProps,
+            ...props.ringProps,
         };
 
-        this.currentRing.updateItemProps(this.rootItemProps);
+        this.currentRing.updateRingProps(this.rootRingProps);
     }
 
     public start() {
@@ -53,13 +55,35 @@ export class RadialMenu {
         this.update();
     }
 
-    public setRing(ring: RadialMenuRing) {
-        this.currentRing = ring;
-        this.currentRing.updateItemProps(this.rootItemProps);
-        // TODO: animate
+    public getCurrentItemProps(): RadialMenuItemProps {
+        const { startAngle, endAngle } = this.rootRingProps;
+        const angle = startAngle + (endAngle - startAngle) * this.currentRingAmount;
+
+        return {
+            ...this.rootRingProps,
+            startAngle,
+            endAngle: angle,
+        };
     }
 
-    public draw(delta: number) {
+    public getPrevItemProps(): RadialMenuItemProps {
+        const { startAngle, endAngle } = this.rootRingProps;
+        const angle = startAngle + (endAngle - startAngle) * this.currentRingAmount;
+
+        return {
+            ...this.rootRingProps,
+            startAngle: angle,
+            endAngle,
+        };
+    }
+
+    public setRing(ring: RadialMenuRing) {
+        this.prevRing = this.currentRing;
+        this.currentRing = ring;
+        this.currentRingAmount = 0;
+    }
+
+    public draw(delta: number, drawPrev: boolean) {
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
             throw new Error('Could not get canvas context.');
@@ -67,6 +91,10 @@ export class RadialMenu {
 
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.currentRing.drawRing(ctx, { colors: this.colors, delta });
+
+        if (drawPrev && this.prevRing) {
+            this.prevRing.drawRing(ctx, { colors: this.colors, delta });
+        }
     }
 
     public update() {
@@ -74,9 +102,21 @@ export class RadialMenu {
         if (!this.prevTime) {
             this.prevTime = time;
         }
-
         const delta = time - this.prevTime;
-        this.draw(delta);
+
+        let drawPrev = false;
+
+        if (this.currentRingAmount < 1) {
+            drawPrev = true;
+
+            this.currentRingAmount += delta / 500; // TODO: make this configurable
+            this.currentRingAmount = Math.min(this.currentRingAmount, 1);
+
+            this.prevRing?.updateRingProps(this.getPrevItemProps());
+            this.currentRing.updateRingProps(this.getCurrentItemProps());
+        }
+
+        this.draw(delta, drawPrev);
         this.prevTime = time;
 
         requestAnimationFrame(() => this.update());
@@ -87,8 +127,8 @@ export class RadialMenu {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        const angle = Math.atan2(y - this.rootItemProps.center.y, x - this.rootItemProps.center.x);
-        return wrapAngle(angle, this.rootItemProps.startAngle);
+        const angle = Math.atan2(y - this.rootRingProps.center.y, x - this.rootRingProps.center.x);
+        return wrapAngle(angle, this.rootRingProps.startAngle);
     }
 
     private onPointerMove(e: PointerEvent) {
@@ -96,8 +136,8 @@ export class RadialMenu {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        if (this.currentRing.itemProps) {
-            const { center, outerRadius, innerRadius, startAngle, endAngle } = this.currentRing.itemProps;
+        if (this.currentRing.ringProps) {
+            const { center, outerRadius, innerRadius, startAngle, endAngle } = this.currentRing.ringProps;
             const angle = this.getPointerAngle(e);
 
             if (angle >= startAngle && angle <= endAngle) {
@@ -114,8 +154,8 @@ export class RadialMenu {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        if (this.currentRing.itemProps) {
-            const { center, outerRadius, innerRadius, startAngle, endAngle } = this.currentRing.itemProps;
+        if (this.currentRing.ringProps) {
+            const { center, outerRadius, innerRadius, startAngle, endAngle } = this.currentRing.ringProps;
             const angle = this.getPointerAngle(e);
 
             if (angle >= startAngle && angle <= endAngle) {

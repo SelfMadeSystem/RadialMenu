@@ -1,12 +1,13 @@
-import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRing } from "..";
+import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRingProps, RadialMenuRing } from "..";
 import { RadialMenu } from "../radial-menu";
 import { angleDiff, clampSym, getTextPosition, pathItem } from "../utils";
 
 export class RingMenu implements RadialMenuRing {
     public parent?: RadialMenuRing | undefined;
     public itemProps: RadialMenuItemProps;
+    public ringProps: RadialMenuRingProps;
     private selectedIndex: number = 0;
-    private cursorAngle: number = 0;
+    private cursorAngle: number = NaN;
     private cursorAngleTarget: number = 0;
     private anglePerItem: number = 0;
 
@@ -21,14 +22,21 @@ export class RingMenu implements RadialMenuRing {
             startAngle: 0,
             endAngle: 0,
         };
+        this.ringProps = {
+            center: { x: 0, y: 0 },
+            innerRadius: 0,
+            outerRadius: 0,
+            startAngle: 0,
+            endAngle: 0,
+        };
 
         for (const item of items) {
             item.parent = this;
         }
     }
 
-    public updateItemProps(props: RadialMenuItemProps): void {
-        this.itemProps = props;
+    public updateRingProps(props: RadialMenuItemProps): void {
+        this.ringProps = props;
 
         const itemCount = this.items.length;
         if (itemCount === 0) {
@@ -51,11 +59,19 @@ export class RingMenu implements RadialMenuRing {
         }
 
         this.anglePerItem = anglePerItem;
-        this.cursorAngle = this.getCursorAngle(this.selectedIndex);
+        this.cursorAngleTarget = this.getCursorAngle(this.selectedIndex);
+
+        if (isNaN(this.cursorAngle)) {
+            this.cursorAngle = this.cursorAngleTarget;
+        }
+    }
+
+    public updateItemProps(props: RadialMenuItemProps): void {
+        this.itemProps = props;
     }
 
     public drawRing(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
-        pathItem(ctx, this.itemProps);
+        pathItem(ctx, this.ringProps);
         ctx.fillStyle = props.colors.ringBg;
         ctx.fill();
 
@@ -68,7 +84,7 @@ export class RingMenu implements RadialMenuRing {
 
     private drawCursor(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
         const cursorProps: RadialMenuItemProps = {
-            ...this.itemProps,
+            ...this.ringProps,
             startAngle: this.cursorAngle,
             endAngle: this.cursorAngle + this.anglePerItem,
         };
@@ -78,7 +94,7 @@ export class RingMenu implements RadialMenuRing {
 
             // TODO: make sure it doesn't go out of bounds
 
-            this.cursorAngle += clampSym(delta, props.delta * 0.01);
+            this.cursorAngle += clampSym(delta, props.delta * 0.01); // TODO: make this configurable
         }
 
         pathItem(ctx, cursorProps);
@@ -93,8 +109,8 @@ export class RingMenu implements RadialMenuRing {
             return undefined;
         }
 
-        const angleOffset = this.itemProps.startAngle;
-        const anglePerItem = (this.itemProps.endAngle - this.itemProps.startAngle) / itemCount;
+        const angleOffset = this.ringProps.startAngle;
+        const anglePerItem = (this.ringProps.endAngle - this.ringProps.startAngle) / itemCount;
 
         const index = Math.floor((angle - angleOffset) / anglePerItem);
 
@@ -115,7 +131,7 @@ export class RingMenu implements RadialMenuRing {
     }
 
     private getCursorAngle(index: number): number {
-        return this.itemProps.startAngle + this.anglePerItem * index;
+        return this.ringProps.startAngle + this.anglePerItem * index;
     }
 
     public onCenterClick(menu: RadialMenu): void {

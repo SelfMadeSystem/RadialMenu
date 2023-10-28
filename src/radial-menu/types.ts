@@ -12,7 +12,7 @@ export type RadialMenuColors = {
 
 export type RadialMenuProps = {
     colors?: Partial<RadialMenuColors>;
-    itemProps?: Partial<RadialMenuItemProps>;
+    ringProps?: Partial<RadialMenuItemProps>;
     rootRing: RadialMenuRing;
 };
 
@@ -28,6 +28,8 @@ export type RadialMenuItemProps = {
     startAngle: number;
     endAngle: number;
 };
+
+export type RadialMenuRingProps = RadialMenuItemProps;
 
 export interface RadialMenuItem {
     /**
@@ -58,6 +60,12 @@ export interface RadialMenuItem {
 }
 
 export interface RadialMenuRing extends RadialMenuItem {
+    readonly ringProps: RadialMenuRingProps;
+
+    /**
+     * Updates the ring props of this item.
+     */
+    updateRingProps(props: RadialMenuRingProps): void;
     /**
      * Draw the ring on the canvas.
      * 
