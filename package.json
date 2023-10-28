@@ -1,24 +1,15 @@
 {
   "name": "radial-menu",
+  "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "vite --host",
-    "build": "vite build",
-    "serve": "vite preview"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/jquery": "^3.5.6",
-    "@types/node": "^16.11.0",
-    "@types/react": "^17.0.27",
-    "@types/react-dom": "^17.0.9",
-    "@vitejs/plugin-react": "^1.0.2",
-    "react-dom": "^17.0.2",
-    "sass": "^1.42.1",
-    "typescript": "^4.4.3",
-    "vite": "^2.6.0"
-  },
-  "dependencies": {
-    "jquery": "^3.6.0",
-    "react": "^17.0.2"
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
   }
 }

@@ -1,0 +1,51 @@
+import type { RadialMenuItemProps } from ".";
+
+/**
+ * Paths out the item props on a canvas.
+ * 
+ * @param ctx The canvas context to draw on.
+ * @param props The props to use for drawing.
+ */
+export function pathItem(ctx: CanvasRenderingContext2D, props: RadialMenuItemProps) {
+    ctx.beginPath();
+    ctx.arc(props.center.x, props.center.y, props.outerRadius, props.startAngle, props.endAngle);
+    ctx.arc(props.center.x, props.center.y, props.innerRadius, props.endAngle, props.startAngle, true);
+    ctx.closePath();
+}
+
+/**
+ * Gets the position to draw the text at.
+ */
+export function getTextPosition(props: RadialMenuItemProps, text: string, ctx: CanvasRenderingContext2D): { x: number, y: number; } {
+    const textWidth = ctx.measureText(text).width;
+    const textHeight = ctx.measureText("M").width;
+
+    const angle = props.startAngle + (props.endAngle - props.startAngle) / 2;
+    const radius = (props.innerRadius + props.outerRadius) / 2;
+
+    const x = props.center.x + Math.cos(angle) * radius - textWidth / 2;
+    const y = props.center.y + Math.sin(angle) * radius + textHeight / 2;
+
+    return { x, y };
+}
+
+/**
+ * Modulo that always returns a positive number.
+ */
+export function posvmod(value: number, mod: number): number {
+    return ((value % mod) + mod) % mod;
+}
+
+/**
+ * Wraps a number between two values.
+ */
+export function wrap(value: number, min: number, max: number): number {
+    return posvmod(value - min, max - min) + min;
+}
+
+/**
+ * Wraps a number to be between 0 and 2 * PI, along with a given offset.
+ */
+export function wrapAngle(angle: number, offset: number = 0): number {
+    return wrap(angle - offset, 0, 2 * Math.PI) + offset;
+}
