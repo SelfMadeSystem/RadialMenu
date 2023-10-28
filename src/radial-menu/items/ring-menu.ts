@@ -156,13 +156,18 @@ export class RingMenu implements RadialMenuRing {
     }
 
     public drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
+        ctx.save();
+
+        pathItem(ctx, this.itemProps);
+        ctx.clip();
+
         ctx.fillStyle = props.colors.ringText;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
 
         const pos = getTextPosition(this.itemProps, this.name, ctx);
 
         ctx.fillText(this.name, pos.x, pos.y);
+
+        ctx.restore();
     }
 
     public onClick(menu: RadialMenu): void {
