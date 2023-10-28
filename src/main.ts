@@ -1,5 +1,7 @@
+import { RingBool } from './radial-menu/items/ring-bool';
 import { RingMenu } from './radial-menu/items/ring-menu';
 import { RadialMenu } from './radial-menu/radial-menu';
+import { createRef } from './radial-menu/ref';
 import './style.css';
 
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -20,11 +22,7 @@ const radialMenu = new RadialMenu(canvas, {
         new RingMenu("ring5", []),
         new RingMenu("ring6", []),
         new RingMenu("ring7", []),
-        new RingMenu("ring8", []),
-        new RingMenu("ring9", []),
-        new RingMenu("ring10", []),
-        new RingMenu("ring11", []),
-        new RingMenu("ring12", []),
+        new RingBool("bool1", createRef(false)),
     ]),
 });
 
