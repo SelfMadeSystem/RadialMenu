@@ -136,7 +136,7 @@ export class RingMenu implements RadialMenuRing {
 
     public onCenterClick(menu: RadialMenu): void {
         if (this.parent) {
-            menu.setRing(this.parent);
+            menu.setParentRing();
         }
     }
 

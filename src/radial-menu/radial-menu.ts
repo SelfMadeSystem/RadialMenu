@@ -19,7 +19,8 @@ export class RadialMenu {
     public prevRing?: RadialMenuRing;
     public currentOverlay?: RadialMenuOverlay;
     public currentInput: RadialMenuInput;
-    public currentRingAmount: number = 1; // from 0 to 1. used for animations
+    public animateCurrentRingAmount: number = 1; // from 0 to 1. used for animations
+    public animateCurrentRingOtherDirection: boolean = false;
     public rootRingProps: RadialMenuRingProps;
 
     private prevTime: number = 0;
@@ -64,31 +65,59 @@ export class RadialMenu {
 
     public getCurrentRingProps(): RadialMenuRingProps {
         const { startAngle, endAngle } = this.rootRingProps;
-        const angle = startAngle + (endAngle - startAngle) * this.currentRingAmount;
+        if (this.animateCurrentRingOtherDirection) {
+            const angle = endAngle + (startAngle - endAngle) * this.animateCurrentRingAmount;
 
-        return {
-            ...this.rootRingProps,
-            startAngle,
-            endAngle: angle,
-        };
+            return {
+                ...this.rootRingProps,
+                startAngle: angle,
+                endAngle,
+            };
+        } else {
+            const angle = startAngle + (endAngle - startAngle) * this.animateCurrentRingAmount;
+
+            return {
+                ...this.rootRingProps,
+                startAngle,
+                endAngle: angle,
+            };
+        }
     }
 
     public getPrevRingProps(): RadialMenuRingProps {
         const { startAngle, endAngle } = this.rootRingProps;
-        const angle = startAngle + (endAngle - startAngle) * this.currentRingAmount;
+        if (this.animateCurrentRingOtherDirection) {
+            const angle = endAngle + (startAngle - endAngle) * this.animateCurrentRingAmount;
 
-        return {
-            ...this.rootRingProps,
-            startAngle: angle,
-            endAngle,
-        };
+            return {
+                ...this.rootRingProps,
+                startAngle,
+                endAngle: angle,
+            };
+        } else {
+            const angle = startAngle + (endAngle - startAngle) * this.animateCurrentRingAmount;
+
+            return {
+                ...this.rootRingProps,
+                startAngle: angle,
+                endAngle,
+            };
+        }
     }
 
     public setRing(ring: RadialMenuRing) {
         this.prevRing = this.currentRing;
         this.currentRing = ring;
         this.currentInput = ring;
-        this.currentRingAmount = 0;
+        this.animateCurrentRingAmount = 0;
+        this.animateCurrentRingOtherDirection = false;
+    }
+
+    public setParentRing() {
+        if (this.currentRing.parent) {
+            this.setRing(this.currentRing.parent);
+            this.animateCurrentRingOtherDirection = true;
+        }
     }
 
     public setOverlay(overlay: RadialMenuOverlay) {
@@ -129,11 +158,11 @@ export class RadialMenu {
 
         let drawPrev = false;
 
-        if (this.currentRingAmount < 1) {
+        if (this.animateCurrentRingAmount < 1) {
             drawPrev = true;
 
-            this.currentRingAmount += delta / 500; // TODO: make this configurable
-            this.currentRingAmount = Math.min(this.currentRingAmount, 1);
+            this.animateCurrentRingAmount += delta / 500; // TODO: make this configurable
+            this.animateCurrentRingAmount = Math.min(this.animateCurrentRingAmount, 1);
 
             this.prevRing?.updateRingProps(this.getPrevRingProps());
             this.currentRing.updateRingProps(this.getCurrentRingProps());
