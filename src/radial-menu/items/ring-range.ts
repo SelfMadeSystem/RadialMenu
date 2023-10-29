@@ -31,7 +31,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
 
         const pos = this.drawText(ctx, props);
 
-        ctx.fillText(this.ref.get().toPrecision(2), pos.x, pos.y + 20);
+        ctx.fillText(this.ref.get().toFixed(2), pos.x, pos.y + 20);
 
         this.endClip(ctx);
     }
@@ -49,6 +49,8 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
+        ctx.globalAlpha = this.animateTime * 2;
 
         ctx.fillText(this.name, pos.x, pos.y);
 
@@ -122,13 +124,13 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
 
         let value = this.min + (this.max - this.min) * (angle - minAngle) / (animatedMaxAngle - minAngle);
 
+        if (this.step) {
+            value = Math.round(value / this.step) * this.step;
+        }
+
         value = clamp(value, this.min, this.max);
 
-        if (this.step) {
-            this.ref.set(Math.round(value / this.step) * this.step);
-        } else {
-            this.ref.set(value);
-        }
+        this.ref.set(value);
     }
 
     public onRingClick(_menu: RadialMenu, angle: number, _distance: number): void {

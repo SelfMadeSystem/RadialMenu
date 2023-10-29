@@ -21,10 +21,18 @@ const radialMenu = new RadialMenu(canvas, {
         new RingMenu("ring3", []),
         new RingMenu("ring4", []),
         new RingMenu("ring5", []),
-        new RingMenu("ring6", []),
         new RingRange("range1", createRef(50), 0, 100),
+        new RingRange("range2", createRef(135), 0, 360, 22.5),
         new RingBool("bool1", createRef(false)),
     ]),
+    ringProps: { // try these values if you want
+        // startAngle: -Math.PI * 1.5,
+        // endAngle: Math.PI * 0.5,
+        // startAngle: -Math.PI,
+        // endAngle: 0,
+        // startAngle: -Math.PI * 1.25,
+        // endAngle: Math.PI * 0.25,
+    }
 });
 
 radialMenu.start();

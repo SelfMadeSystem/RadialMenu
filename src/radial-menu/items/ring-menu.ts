@@ -82,10 +82,14 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
             endAngle: this.cursorAngle + this.anglePerItem,
         };
 
-        if (this.cursorAngle !== this.cursorAngleTarget) {
-            const delta = angleDiff(this.cursorAngle, this.cursorAngleTarget);
+        if (angleDiff(this.cursorAngle, this.cursorAngleTarget) !== 0) {
+            let delta: number;
 
-            // TODO: make sure it doesn't go out of bounds
+            if (Math.abs(angleDiff(this.ringProps.startAngle, this.ringProps.endAngle)) < 0.001) {
+                delta = angleDiff(this.cursorAngle, this.cursorAngleTarget);
+            } else {
+                delta = this.cursorAngleTarget - this.cursorAngle;
+            }
 
             this.cursorAngle += clampSym(delta, props.delta * 0.01); // TODO: make this configurable
         }
