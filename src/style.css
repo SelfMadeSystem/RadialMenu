@@ -6,8 +6,10 @@ body {
   display: flex;
 }
 
-canvas {
+#app {
   border: 1px solid #000;
-  margin: auto auto;
   display: block;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
 }

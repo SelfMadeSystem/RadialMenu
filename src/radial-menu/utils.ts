@@ -1,6 +1,6 @@
 import type { RadialMenuItemProps } from ".";
 
-export type Vec2 = { x: number, y: number };
+export type Vec2 = { x: number, y: number; };
 
 /**
  * Paths out the item props on a canvas.

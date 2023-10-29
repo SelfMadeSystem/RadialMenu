@@ -1,5 +1,5 @@
 import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRing } from "..";
-import { RadialMenu } from "../radial-menu";
+import { Contexts, RadialMenu } from "../radial-menu";
 import { Vec2, getTextPosition, pathItem } from "../utils";
 
 export class RingItemBase implements RadialMenuItem {
@@ -43,7 +43,9 @@ export class RingItemBase implements RadialMenuItem {
         return pos;
     }
 
-    public drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
+    public drawItem(contexts: Contexts, props: RadialMenuDrawProps): void {
+        const ctx = contexts.foreground;
+
         this.startClip(ctx);
         this.drawText(ctx, props);
         this.endClip(ctx);

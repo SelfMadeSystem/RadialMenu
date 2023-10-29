@@ -5,8 +5,8 @@ import { RadialMenu } from './radial-menu/radial-menu';
 import { createRef } from './radial-menu/ref';
 import './style.css';
 
-const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-const radialMenu = new RadialMenu(canvas, {
+const app = document.getElementById("app") as HTMLDivElement;
+const radialMenu = new RadialMenu(app, {
     rootRing: new RingMenu("root", [
         new RingMenu("ring1", [
             new RingMenu("ring1-1", [

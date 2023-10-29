@@ -1,5 +1,5 @@
 import { RadialMenuDrawProps, RadialMenuItemProps } from "..";
-import { RadialMenu } from "../radial-menu";
+import { Contexts, RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
 import { RingItemBase } from "./ring-item-base";
 
@@ -15,7 +15,9 @@ export class RingBool extends RingItemBase {
         this.itemProps = props;
     }
 
-    public drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
+    public drawItem(contexts: Contexts, props: RadialMenuDrawProps): void {
+        const ctx = contexts.foreground;
+        
         this.startClip(ctx);
 
         const pos = this.drawText(ctx, props);

@@ -1,5 +1,5 @@
 import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay } from "..";
-import { RadialMenu } from "../radial-menu";
+import { Contexts, RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
 import { clamp, clampSym, pathItem } from "../utils";
 import { RingItemBase } from "./ring-item-base";
@@ -26,7 +26,8 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         this.itemProps = props;
     }
 
-    public drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
+    public drawItem(contexts: Contexts, props: RadialMenuDrawProps): void {
+        const ctx = contexts.foreground;
         this.startClip(ctx);
 
         const pos = this.drawText(ctx, props);
@@ -41,7 +42,9 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         this.animateTarget = 1.0;
     }
 
-    public drawOverlay(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
+    public drawOverlay(contexts: Contexts, props: RadialMenuDrawProps): void {
+        const ctx = contexts.overlay;
+
         ctx.save();
         ctx.fillStyle = props.colors.highlightOverlay;
 

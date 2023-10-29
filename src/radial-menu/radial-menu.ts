@@ -12,6 +12,54 @@ export const defaultColors: RadialMenuColors = {
     sliderFg: '#000',
 };
 
+export type Canvases = {
+    background: HTMLCanvasElement;
+    cursor: HTMLCanvasElement;
+    foreground: HTMLCanvasElement;
+    overlay: HTMLCanvasElement;
+};
+
+export type Contexts = {
+    background: CanvasRenderingContext2D;
+    cursor: CanvasRenderingContext2D;
+    foreground: CanvasRenderingContext2D;
+    overlay: CanvasRenderingContext2D;
+};
+
+function getContexts(canvases: Canvases): Contexts {
+    return {
+        background: canvases.background.getContext('2d')!,
+        cursor: canvases.cursor.getContext('2d')!,
+        foreground: canvases.foreground.getContext('2d')!,
+        overlay: canvases.overlay.getContext('2d')!,
+    };
+}
+
+function clearCanvases(canvases: Canvases) {
+    for (const canvas of Object.values(canvases)) {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+            throw new Error('Could not get canvas context.');
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+}
+
+function createCanvas() {
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'absolute';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+
+    new ResizeObserver(() => {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+    }).observe(canvas);
+
+    return canvas;
+}
 
 export class RadialMenu {
     public colors: RadialMenuColors;
@@ -22,15 +70,34 @@ export class RadialMenu {
     public animateCurrentRingAmount: number = 1; // from 0 to 1. used for animations
     public animateCurrentRingOtherDirection: boolean = false;
     public rootRingProps: RadialMenuRingProps;
+    public canvases: Canvases;
 
     private prevTime: number = 0;
 
+    private createCanvases() {
+        const background = createCanvas();
+        const cursor = createCanvas();
+        const foreground = createCanvas();
+        const overlay = createCanvas();
+
+        this.app.appendChild(background);
+        this.app.appendChild(cursor);
+        this.app.appendChild(foreground);
+        this.app.appendChild(overlay);
+
+        return { background, cursor, foreground, overlay };
+    }
+
     constructor(
-        public readonly canvas: HTMLCanvasElement,
+        public readonly app: HTMLElement,
         props: RadialMenuProps,
     ) {
         this.colors = { ...defaultColors, ...props.colors };
         this.currentInput = this.currentRing = props.rootRing;
+
+        this.canvases = this.createCanvases();
+
+        const canvas = this.canvases.background;
 
         const radius = Math.min(canvas.width, canvas.height) / 2;
         let rootRingProps: RadialMenuRingProps = {
@@ -47,16 +114,36 @@ export class RadialMenu {
         };
 
         this.currentRing.updateRingProps(this.rootRingProps);
+
+
+        if (!props.ringProps?.center) {
+            new ResizeObserver(() => {
+                const radius = Math.min(canvas.width, canvas.height) / 2;
+                rootRingProps = {
+                    ...rootRingProps,
+                    center: { x: canvas.width / 2, y: canvas.height / 2 },
+                    outerRadius: radius,
+                    innerRadius: radius * 0.5,
+                };
+
+                this.rootRingProps = {
+                    ...rootRingProps,
+                    ...props.ringProps,
+                };
+
+                this.currentRing.updateRingProps(this.rootRingProps);
+            }).observe(canvas);
+        }
     }
 
     public start() {
-        this.canvas.addEventListener('pointermove', (e) => {
+        this.app.addEventListener('pointermove', (e) => {
             this.onPointerMove(e);
         });
-        this.canvas.addEventListener('pointerdown', (e) => {
+        this.app.addEventListener('pointerdown', (e) => {
             this.onPointerDown(e);
         });
-        this.canvas.addEventListener('pointerup', (e) => {
+        this.app.addEventListener('pointerup', (e) => {
             this.onPointerUp(e);
         });
 
@@ -131,21 +218,17 @@ export class RadialMenu {
     }
 
     public draw(delta: number, drawPrev: boolean) {
-        const ctx = this.canvas.getContext('2d');
-        if (!ctx) {
-            throw new Error('Could not get canvas context.');
-        }
-
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        clearCanvases(this.canvases);
+        const contexts = getContexts(this.canvases);
         const props = { colors: this.colors, delta, menu: this };
-        this.currentRing.drawRing(ctx, props);
+        this.currentRing.drawRing(contexts, props);
 
         if (drawPrev && this.prevRing) {
-            this.prevRing.drawRing(ctx, props);
+            this.prevRing.drawRing(contexts, props);
         }
 
         if (this.currentOverlay) {
-            this.currentOverlay.drawOverlay(ctx, props);
+            this.currentOverlay.drawOverlay(contexts, props);
         }
     }
 
@@ -175,7 +258,7 @@ export class RadialMenu {
     }
 
     private getPointerAngle(e: PointerEvent): number {
-        const rect = this.canvas.getBoundingClientRect();
+        const rect = this.app.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
@@ -192,7 +275,7 @@ export class RadialMenu {
     }
 
     private onPointerMove(e: PointerEvent) {
-        const rect = this.canvas.getBoundingClientRect();
+        const rect = this.app.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
@@ -212,7 +295,7 @@ export class RadialMenu {
     }
 
     private onPointerDown(e: PointerEvent) {
-        const rect = this.canvas.getBoundingClientRect();
+        const rect = this.app.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
@@ -235,7 +318,7 @@ export class RadialMenu {
     }
 
     private onPointerUp(e: PointerEvent) {
-        const rect = this.canvas.getBoundingClientRect();
+        const rect = this.app.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 

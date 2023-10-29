@@ -1,5 +1,5 @@
 import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRingProps, RadialMenuRing } from "..";
-import { RadialMenu } from "../radial-menu";
+import { Contexts, RadialMenu } from "../radial-menu";
 import { angleDiff, clampSym, pathItem } from "../utils";
 import { RingItemBase } from "./ring-item-base";
 
@@ -63,15 +63,17 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
         this.itemProps = props;
     }
 
-    public drawRing(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
+    public drawRing(contexts: Contexts, props: RadialMenuDrawProps): void {
+        const ctx = contexts.background;
+
         pathItem(ctx, this.ringProps);
         ctx.fillStyle = props.colors.ringBg;
         ctx.fill();
 
-        this.drawCursor(ctx, props);
+        this.drawCursor(contexts.cursor, props);
 
         for (const item of this.items) {
-            item.drawItem(ctx, props);
+            item.drawItem(contexts, props);
         }
     }
 
@@ -152,8 +154,8 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
         }
     }
 
-    public drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
-        super.drawItem(ctx, props);
+    public drawItem(contexts: Contexts, props: RadialMenuDrawProps): void {
+        super.drawItem(contexts, props);
     }
 
     public onClick(menu: RadialMenu): void {

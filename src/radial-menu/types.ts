@@ -1,4 +1,4 @@
-import type { RadialMenu } from "./radial-menu";
+import type { Contexts, RadialMenu } from "./radial-menu";
 import { Vec2 } from "./utils";
 
 export type RadialMenuColors = {
@@ -53,7 +53,7 @@ export interface RadialMenuItem {
      * @param ctx The canvas context to draw on.
      * @param props The props to use for drawing.
      */
-    drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void;
+    drawItem(contexts: Contexts, props: RadialMenuDrawProps): void;
 
     /**
      * Gets called when the item is clicked.
@@ -106,7 +106,7 @@ export interface RadialMenuOverlay extends RadialMenuInput {
      * 
      * @param ctx The canvas context to draw on.
      */
-    drawOverlay(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void;
+    drawOverlay(contexts: Contexts, props: RadialMenuDrawProps): void;
 }
 
 export interface RadialMenuRing extends RadialMenuInput {
@@ -122,5 +122,5 @@ export interface RadialMenuRing extends RadialMenuInput {
      * 
      * @param ctx The canvas context to draw on.
      */
-    drawRing(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void;
+    drawRing(contexts: Contexts, props: RadialMenuDrawProps): void;
 }
