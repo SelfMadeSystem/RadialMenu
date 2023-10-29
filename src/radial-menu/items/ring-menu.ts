@@ -1,10 +1,9 @@
 import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRingProps, RadialMenuRing } from "..";
 import { RadialMenu } from "../radial-menu";
-import { angleDiff, clampSym, getTextPosition, pathItem } from "../utils";
+import { angleDiff, clampSym, pathItem } from "../utils";
+import { RingItemBase } from "./ring-item-base";
 
-export class RingMenu implements RadialMenuRing {
-    public parent?: RadialMenuRing | undefined;
-    public itemProps: RadialMenuItemProps;
+export class RingMenu extends RingItemBase implements RadialMenuRing {
     public ringProps: RadialMenuRingProps;
     private selectedIndex: number = 0;
     private cursorAngle: number = NaN;
@@ -12,16 +11,10 @@ export class RingMenu implements RadialMenuRing {
     private anglePerItem: number = 0;
 
     constructor(
-        public readonly name: string,
+        name: string,
         public items: RadialMenuItem[],
     ) {
-        this.itemProps = {
-            center: { x: 0, y: 0 },
-            innerRadius: 0,
-            outerRadius: 0,
-            startAngle: 0,
-            endAngle: 0,
-        };
+        super(name);
         this.ringProps = {
             center: { x: 0, y: 0 },
             innerRadius: 0,
@@ -156,18 +149,7 @@ export class RingMenu implements RadialMenuRing {
     }
 
     public drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
-        ctx.save();
-
-        pathItem(ctx, this.itemProps);
-        ctx.clip();
-
-        ctx.fillStyle = props.colors.ringText;
-
-        const pos = getTextPosition(this.itemProps, this.name, ctx);
-
-        ctx.fillText(this.name, pos.x, pos.y);
-
-        ctx.restore();
+        super.drawItem(ctx, props);
     }
 
     public onClick(menu: RadialMenu): void {

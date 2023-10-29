@@ -1,12 +1,10 @@
-import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay, RadialMenuRing } from "..";
+import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay } from "..";
 import { RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
-import { clamp, clampSym, getTextPosition, pathItem } from "../utils";
+import { clamp, clampSym, pathItem } from "../utils";
+import { RingItemBase } from "./ring-item-base";
 
-export class RingRange implements RadialMenuOverlay {
-    public parent?: RadialMenuRing | undefined;
-    public itemProps: RadialMenuItemProps;
-    public name: string;
+export class RingRange extends RingItemBase implements RadialMenuOverlay {
     public ref: Ref<number>;
     public min: number;
     public max: number;
@@ -17,18 +15,11 @@ export class RingRange implements RadialMenuOverlay {
     public readonly ringAngleDiff: number = 0.2;
 
     constructor(text: string, ref: Ref<number>, min: number, max: number, step?: number) {
-        this.name = text;
+        super(text);
         this.ref = ref;
         this.min = min;
         this.max = max;
         this.step = step;
-        this.itemProps = {
-            center: { x: 0, y: 0 },
-            innerRadius: 0,
-            outerRadius: 0,
-            startAngle: 0,
-            endAngle: 0,
-        };
     }
 
     public updateItemProps(props: RadialMenuItemProps): void {
@@ -36,20 +27,13 @@ export class RingRange implements RadialMenuOverlay {
     }
 
     public drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
-        ctx.save();
+        this.startClip(ctx);
 
-        pathItem(ctx, this.itemProps);
-        ctx.clip();
-
-        ctx.fillStyle = props.colors.ringText;
-
-        const pos = getTextPosition(this.itemProps, this.name, ctx);
-
-        ctx.fillText(this.name, pos.x, pos.y);
+        const pos = this.drawText(ctx, props);
 
         ctx.fillText(this.ref.get().toPrecision(2), pos.x, pos.y + 20);
 
-        ctx.restore();
+        this.endClip(ctx);
     }
 
     public onClick(menu: RadialMenu): void {

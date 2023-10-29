@@ -1,5 +1,7 @@
 import type { RadialMenuItemProps } from ".";
 
+export type Vec2 = { x: number, y: number };
+
 /**
  * Paths out the item props on a canvas.
  * 
@@ -16,7 +18,7 @@ export function pathItem(ctx: CanvasRenderingContext2D, props: RadialMenuItemPro
 /**
  * Gets the position to draw the text at.
  */
-export function getTextPosition(props: RadialMenuItemProps, text: string, ctx: CanvasRenderingContext2D): { x: number, y: number; } {
+export function getTextPosition(props: RadialMenuItemProps, text: string, ctx: CanvasRenderingContext2D): Vec2 {
     const textWidth = ctx.measureText(text).width;
     const textHeight = ctx.measureText("M").width;
 

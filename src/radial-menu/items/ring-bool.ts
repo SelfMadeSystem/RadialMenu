@@ -1,24 +1,14 @@
-import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRing } from "..";
+import { RadialMenuDrawProps, RadialMenuItemProps } from "..";
 import { RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
-import { getTextPosition, pathItem } from "../utils";
+import { RingItemBase } from "./ring-item-base";
 
-export class RingBool implements RadialMenuItem {
-    public parent?: RadialMenuRing | undefined;
-    public itemProps: RadialMenuItemProps;
-    public name: string;
+export class RingBool extends RingItemBase {
     public ref: Ref<boolean>;
 
     constructor(text: string, ref: Ref<boolean>) {
-        this.name = text;
+        super(text);
         this.ref = ref;
-        this.itemProps = {
-            center: { x: 0, y: 0 },
-            innerRadius: 0,
-            outerRadius: 0,
-            startAngle: 0,
-            endAngle: 0,
-        };
     }
 
     public updateItemProps(props: RadialMenuItemProps): void {
@@ -26,20 +16,13 @@ export class RingBool implements RadialMenuItem {
     }
 
     public drawItem(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
-        ctx.save();
+        this.startClip(ctx);
 
-        pathItem(ctx, this.itemProps);
-        ctx.clip();
-
-        ctx.fillStyle = props.colors.ringText;
-
-        const pos = getTextPosition(this.itemProps, this.name, ctx);
-
-        ctx.fillText(this.name, pos.x, pos.y);
+        const pos = this.drawText(ctx, props);
 
         ctx.fillText(this.ref.get() ? "true" : "false", pos.x, pos.y + 20);
 
-        ctx.restore();
+        this.endClip(ctx);
     }
 
     public onClick(_menu: RadialMenu): void {

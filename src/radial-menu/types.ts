@@ -1,4 +1,5 @@
 import type { RadialMenu } from "./radial-menu";
+import { Vec2 } from "./utils";
 
 export type RadialMenuColors = {
     ringBg: string;
@@ -25,7 +26,7 @@ export type RadialMenuDrawProps = {
 };
 
 export type RadialMenuItemProps = {
-    center: { x: number, y: number; };
+    center: Vec2;
     outerRadius: number;
     innerRadius: number;
     startAngle: number;
