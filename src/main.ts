@@ -20,7 +20,6 @@ const radialMenu = new RadialMenu(app, {
         ]),
         new RingMenu("ring2", []),
         new RingMenu("ring3", []),
-        new RingMenu("ring4", []),
         new RingRange("range1", createRef(50), 0, 100),
         new RingRange("range2", createRef(135), 0, 360, 22.5),
         new RingSelect("select1", createRef(0), [
@@ -38,6 +37,12 @@ const radialMenu = new RadialMenu(app, {
             "item12",
             "item13",
             "item14",
+        ]),
+        new RingSelect("select2", createRef(0), [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
         ]),
         new RingBool("bool1", createRef(false)),
     ]),

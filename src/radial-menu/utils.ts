@@ -53,6 +53,13 @@ export function posvmod(value: number, mod: number): number {
 }
 
 /**
+ * Linearly interpolates between two values.
+ */
+export function lerp(from: number, to: number, t: number): number {
+    return from + (to - from) * t;
+}
+
+/**
  * Wraps a number between two values.
  */
 export function wrap(value: number, min: number, max: number): number {
