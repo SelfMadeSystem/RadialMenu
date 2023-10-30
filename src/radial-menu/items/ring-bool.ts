@@ -17,12 +17,14 @@ export class RingBool extends RingItemBase {
 
     public drawItem(contexts: Contexts, props: RadialMenuDrawProps): void {
         const ctx = contexts.foreground;
-        
+
         this.startClip(ctx);
 
-        const pos = this.drawText(ctx, props);
+        const textSize = props.theme.textSize.getTextSize(props.radius);
 
-        ctx.fillText(this.ref.get() ? "true" : "false", pos.x, pos.y + 20);
+        const pos = this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
+
+        ctx.fillText(this.ref.get() ? "true" : "false", pos.x, pos.y + textSize * 0.75);
 
         this.endClip(ctx);
     }

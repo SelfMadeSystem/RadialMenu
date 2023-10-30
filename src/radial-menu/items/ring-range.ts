@@ -30,9 +30,11 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         const ctx = contexts.foreground;
         this.startClip(ctx);
 
-        const pos = this.drawText(ctx, props);
+        const textSize = props.theme.textSize.getTextSize(props.radius);
 
-        ctx.fillText(this.ref.get().toFixed(2), pos.x, pos.y + 20);
+        const pos = this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
+
+        ctx.fillText(this.ref.get().toFixed(2), pos.x, pos.y + textSize * 0.75);
 
         this.endClip(ctx);
     }
@@ -46,7 +48,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         const ctx = contexts.overlayFg;
 
         ctx.save();
-        ctx.fillStyle = props.colors.highlightOverlay;
+        ctx.fillStyle = props.theme.highlightOverlay;
 
         const pos = this.itemProps.center;
 
@@ -55,9 +57,14 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
 
         ctx.globalAlpha = this.animateTime * 2;
 
+
+        const textSize = props.theme.textSize.getTextSize(props.radius);
+
+        ctx.font = `${textSize}px ${props.theme.font}`;
+
         ctx.fillText(this.name, pos.x, pos.y);
 
-        ctx.fillText(this.ref.get().toFixed(2), pos.x, pos.y + 20);
+        ctx.fillText(this.ref.get().toFixed(2), pos.x, pos.y + textSize * 1.5);
         ctx.restore();
 
         this.drawSlider(ctx, props);
@@ -79,10 +86,10 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         ctx.globalAlpha = this.animateTime * 2;
 
         pathItem(ctx, this.parent!.ringProps);
-        ctx.fillStyle = props.colors.ringBg;
+        ctx.fillStyle = props.theme.ringBg;
         ctx.fill();
 
-        ctx.strokeStyle = props.colors.sliderBg;
+        ctx.strokeStyle = props.theme.sliderBg;
         ctx.lineWidth = 16; // TODO: make this configurable
         ctx.lineCap = "round";
 
@@ -97,7 +104,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         ctx.arc(ringProps.center.x, ringProps.center.y, (ringProps.outerRadius + ringProps.innerRadius) / 2, minAngle, animatedMaxAngle);
         ctx.stroke();
 
-        ctx.strokeStyle = props.colors.sliderFg;
+        ctx.strokeStyle = props.theme.sliderFg;
 
         ctx.beginPath();
         const angle = minAngle + (maxAngle - minAngle) * (this.ref.get() - this.min) / (this.max - this.min);

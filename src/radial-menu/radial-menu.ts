@@ -1,15 +1,18 @@
-import { RadialMenuColors, RadialMenuProps, RadialMenuRing, RadialMenuRingProps, RadialMenuOverlay, RadialMenuInput } from ".";
+import { RadialMenuTheme, RadialMenuProps, RadialMenuRing, RadialMenuRingProps, RadialMenuOverlay, RadialMenuInput, RadialMenuDrawProps } from ".";
+import { TextSizeRel } from "./text-size";
 import { wrapAngle } from "./utils";
 
-export const defaultColors: RadialMenuColors = {
+export const defaultColors: RadialMenuTheme = {
     ringBg: '#cccccf',
     ringText: '#000',
     cursor: '#0ae',
     // centerBg: '#0000',
     centerText: '#000',
+    textSize: TextSizeRel(25 / 500),
+    font: 'sans-serif',
     highlightOverlay: '#000a', // just darkens the rest of the ring
-    sliderBg: '#0ae',
-    sliderFg: '#000',
+    sliderBg: '#555',
+    sliderFg: '#0ae',
 };
 
 export type Canvases = {
@@ -68,7 +71,7 @@ function createCanvas() {
 }
 
 export class RadialMenu {
-    public colors: RadialMenuColors;
+    public colors: RadialMenuTheme;
     public currentRing: RadialMenuRing;
     public prevRing?: RadialMenuRing;
     public currentOverlay?: RadialMenuOverlay;
@@ -102,7 +105,7 @@ export class RadialMenu {
         public readonly app: HTMLElement,
         props: RadialMenuProps,
     ) {
-        this.colors = { ...defaultColors, ...props.colors };
+        this.colors = { ...defaultColors, ...props.theme };
         this.currentInput = this.currentRing = props.rootRing;
 
         this.canvases = this.createCanvases();
@@ -230,7 +233,7 @@ export class RadialMenu {
     public draw(delta: number, drawPrev: boolean) {
         clearCanvases(this.canvases);
         const contexts = getContexts(this.canvases);
-        const props = { colors: this.colors, delta, menu: this };
+        const props: RadialMenuDrawProps = { theme: this.colors, delta, menu: this, radius: this.rootRingProps.outerRadius };
         this.currentRing.drawRing(contexts, props);
 
         if (drawPrev && this.prevRing) {

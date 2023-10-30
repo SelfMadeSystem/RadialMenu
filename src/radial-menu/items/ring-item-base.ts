@@ -33,14 +33,37 @@ export class RingItemBase implements RadialMenuItem {
         ctx.restore();
     }
 
-    public drawText(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): Vec2 {
-        ctx.fillStyle = props.colors.ringText;
+    public drawText(
+        ctx: CanvasRenderingContext2D,
+        props: RadialMenuDrawProps,
+        options?: { offset?: Vec2, textSize?: number; }
+    ): Vec2 {
+        let offset: Vec2 | undefined = options?.offset;
+        let textSize: number | undefined = options?.textSize;
 
-        const pos = getTextPosition(this.itemProps, this.name, ctx);
+        if (textSize === undefined) {
+            textSize = props.theme.textSize.getTextSize(props.radius);
+        }
 
-        ctx.fillText(this.name, pos.x, pos.y);
+        ctx.fillStyle = props.theme.ringText;
 
-        return pos;
+        ctx.font = `${textSize}px ${props.theme.font}`;
+
+        const ogPos = getTextPosition(this.itemProps, this.name, ctx);
+
+        const textPos = {
+            x: ogPos.x,
+            y: ogPos.y,
+        };
+
+        if (offset !== undefined) {
+            textPos.x += offset.x;
+            textPos.y += offset.y;
+        }
+
+        ctx.fillText(this.name, textPos.x, textPos.y);
+
+        return ogPos;
     }
 
     public drawItem(contexts: Contexts, props: RadialMenuDrawProps): void {

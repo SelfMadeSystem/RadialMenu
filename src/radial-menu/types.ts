@@ -1,28 +1,31 @@
 import type { Contexts, RadialMenu } from "./radial-menu";
+import { TextSize } from "./text-size";
 import { Vec2 } from "./utils";
 
-export type RadialMenuColors = {
+export type RadialMenuTheme = {
     ringBg: string;
     ringText: string;
     cursor: string;
     // centerBg: string;
     centerText: string;
+    textSize: TextSize;
+    font: string;
     highlightOverlay: string;
-    // TODO: toggle button colors, range slider colors
     sliderBg: string;
     sliderFg: string;
 };
 
 export type RadialMenuProps = {
-    colors?: Partial<RadialMenuColors>;
+    theme?: Partial<RadialMenuTheme>;
     ringProps?: Partial<RadialMenuItemProps>;
     rootRing: RadialMenuRing;
 };
 
 export type RadialMenuDrawProps = {
-    colors: RadialMenuColors;
+    theme: RadialMenuTheme;
     delta: number;
     menu: RadialMenu;
+    radius: number;
 };
 
 export type RadialMenuItemProps = {

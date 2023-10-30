@@ -67,7 +67,7 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
         const ctx = contexts.background;
 
         pathItem(ctx, this.ringProps);
-        ctx.fillStyle = props.colors.ringBg;
+        ctx.fillStyle = props.theme.ringBg;
         ctx.fill();
 
         this.drawCursor(contexts.cursor, props);
@@ -98,7 +98,7 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
 
         pathItem(ctx, cursorProps);
 
-        ctx.fillStyle = props.colors.cursor;
+        ctx.fillStyle = props.theme.cursor;
         ctx.fill();
     }
 

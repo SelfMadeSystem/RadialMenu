@@ -42,9 +42,11 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
         const ctx = contexts.foreground;
         this.startClip(ctx);
 
-        const pos = this.drawText(ctx, props);
+        const textSize = props.theme.textSize.getTextSize(props.radius);
 
-        ctx.fillText(this.getText(), pos.x, pos.y + 20);
+        const pos = this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
+
+        ctx.fillText(this.getText(), pos.x, pos.y + textSize * 0.75);
 
         this.endClip(ctx);
     }
@@ -70,7 +72,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
         const ctx = contexts.overlayFg;
 
         ctx.save();
-        ctx.fillStyle = props.colors.highlightOverlay;
+        ctx.fillStyle = props.theme.highlightOverlay;
 
         const pos = this.itemProps.center;
 
@@ -84,7 +86,10 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
         this.drawItems(contexts, props);
 
-        this.drawText(contexts.overlayFg, props);
+        const textSize = props.theme.textSize.getTextSize(props.radius);
+
+        this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
+
     }
 
     private getDrawItems(index: number): DrawItem[] {
@@ -138,12 +143,14 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
             this.currentIndex += clampSym(delta, props.delta * 0.005);
         }
 
+        const textSize = props.theme.textSize.getTextSize(props.radius);
+
         const bgCtx = contexts.overlayBg;
         const cursorCtx = contexts.overlayCursor;
         const fgCtx = contexts.overlayFg;
 
         pathItem(cursorCtx, this.itemProps);
-        cursorCtx.fillStyle = props.colors.cursor;
+        cursorCtx.fillStyle = props.theme.cursor;
         cursorCtx.fill();
 
         for (const item of this.getDrawItems(this.currentIndex)) {
@@ -157,7 +164,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
             // TODO: Don't make this look garbo
 
             pathItem(bgCtx, itemProps);
-            bgCtx.fillStyle = props.colors.ringBg;
+            bgCtx.fillStyle = props.theme.ringBg;
 
             bgCtx.fill();
 
@@ -170,13 +177,13 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
             fgCtx.clip();
 
-            fgCtx.fillStyle = props.colors.ringText;
+            fgCtx.fillStyle = props.theme.ringText;
 
             const text = item.text;
 
             const pos = getTextPosition(itemProps, this.name, fgCtx);
 
-            fgCtx.fillText(text, pos.x, pos.y + 20);
+            fgCtx.fillText(text, pos.x, pos.y + textSize * 0.75);
 
             fgCtx.restore();
         }
