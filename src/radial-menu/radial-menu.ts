@@ -16,14 +16,18 @@ export type Canvases = {
     background: HTMLCanvasElement;
     cursor: HTMLCanvasElement;
     foreground: HTMLCanvasElement;
-    overlay: HTMLCanvasElement;
+    overlayBg: HTMLCanvasElement;
+    overlayCursor: HTMLCanvasElement;
+    overlayFg: HTMLCanvasElement;
 };
 
 export type Contexts = {
     background: CanvasRenderingContext2D;
     cursor: CanvasRenderingContext2D;
     foreground: CanvasRenderingContext2D;
-    overlay: CanvasRenderingContext2D;
+    overlayBg: CanvasRenderingContext2D;
+    overlayCursor: CanvasRenderingContext2D;
+    overlayFg: CanvasRenderingContext2D;
 };
 
 function getContexts(canvases: Canvases): Contexts {
@@ -31,7 +35,9 @@ function getContexts(canvases: Canvases): Contexts {
         background: canvases.background.getContext('2d')!,
         cursor: canvases.cursor.getContext('2d')!,
         foreground: canvases.foreground.getContext('2d')!,
-        overlay: canvases.overlay.getContext('2d')!,
+        overlayBg: canvases.overlayBg.getContext('2d')!,
+        overlayCursor: canvases.overlayCursor.getContext('2d')!,
+        overlayFg: canvases.overlayFg.getContext('2d')!,
     };
 }
 
@@ -78,14 +84,18 @@ export class RadialMenu {
         const background = createCanvas();
         const cursor = createCanvas();
         const foreground = createCanvas();
-        const overlay = createCanvas();
+        const overlayBg = createCanvas();
+        const overlayCursor = createCanvas();
+        const overlayFg = createCanvas();
 
         this.app.appendChild(background);
         this.app.appendChild(cursor);
         this.app.appendChild(foreground);
-        this.app.appendChild(overlay);
+        this.app.appendChild(overlayBg);
+        this.app.appendChild(overlayCursor);
+        this.app.appendChild(overlayFg);
 
-        return { background, cursor, foreground, overlay };
+        return { background, cursor, foreground, overlayBg, overlayCursor, overlayFg };
     }
 
     constructor(

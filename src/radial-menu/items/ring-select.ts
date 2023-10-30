@@ -51,7 +51,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
     }
 
     public drawOverlay(contexts: Contexts, props: RadialMenuDrawProps): void {
-        const ctx = contexts.overlay;
+        const ctx = contexts.overlayFg;
 
         ctx.save();
         ctx.fillStyle = props.colors.highlightOverlay;
@@ -64,8 +64,6 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
         // TODO: Animate this
 
         ctx.fillText(this.name, pos.x, pos.y);
-
-        ctx.fillText(this.getText(), pos.x, pos.y + 20);
         ctx.restore();
 
         this.drawItems(contexts, props);
@@ -112,7 +110,13 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
     }
 
     public drawItems(contexts: Contexts, props: RadialMenuDrawProps): void {
-        const ctx = contexts.overlay;
+        const bgCtx = contexts.overlayBg;
+        const cursorCtx = contexts.overlayCursor;
+        const fgCtx = contexts.overlayFg;
+
+        pathItem(cursorCtx, this.itemProps);
+        cursorCtx.fillStyle = props.colors.cursor;
+        cursorCtx.fill();
 
         for (const item of this.getDrawItems()) {
             const itemProps: RadialMenuItemProps = {
@@ -121,35 +125,35 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
                 endAngle: item.endAngle,
             };
 
-            ctx.save();
-            pathItem(ctx, itemProps);
 
             // ctx.globalAlpha = this.getAlpha(i);
 
             // TODO: Animate this
             // TODO: Don't make this look garbo
 
-            if (item.selected) {
-                // TODO: Make the cursor independent of the items/selected item
-                ctx.fillStyle = props.colors.cursor;
-            } else {
-                ctx.fillStyle = props.colors.ringBg;
+            if (!item.selected) {
+                pathItem(bgCtx, itemProps);
+                bgCtx.fillStyle = props.colors.ringBg;
+
+                bgCtx.fill();
+                bgCtx.stroke(); // temporary. just so it looks different
             }
 
-            ctx.fill();
-            ctx.stroke(); // temporary. just so it looks different
+            fgCtx.save();
 
-            ctx.clip();
+            pathItem(fgCtx, itemProps);
 
-            ctx.fillStyle = props.colors.ringText;
+            fgCtx.clip();
+
+            fgCtx.fillStyle = props.colors.ringText;
 
             const text = item.text;
 
-            const pos = getTextPosition(itemProps, text, ctx);
+            const pos = getTextPosition(itemProps, text, fgCtx);
 
-            ctx.fillText(text, pos.x, pos.y);
+            fgCtx.fillText(text, pos.x, pos.y);
 
-            ctx.restore();
+            fgCtx.restore();
         }
     }
 

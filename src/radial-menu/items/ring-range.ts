@@ -43,7 +43,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
     }
 
     public drawOverlay(contexts: Contexts, props: RadialMenuDrawProps): void {
-        const ctx = contexts.overlay;
+        const ctx = contexts.overlayFg;
 
         ctx.save();
         ctx.fillStyle = props.colors.highlightOverlay;
