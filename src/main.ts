@@ -6,6 +6,8 @@ import { RadialMenu } from './radial-menu/radial-menu';
 import { createRef } from './radial-menu/ref';
 import './style.css';
 
+const boolRef = createRef(false);
+
 const app = document.getElementById("app") as HTMLDivElement;
 const radialMenu = new RadialMenu(app, {
     rootRing: new RingMenu("root", [
@@ -19,7 +21,7 @@ const radialMenu = new RadialMenu(app, {
             new RingMenu("ring1-3", []),
         ]),
         new RingMenu("ring2", []),
-        new RingMenu("ring3", []),
+        new RingBool("bool1", boolRef),
         new RingRange("range1", createRef(50), 0, 100),
         new RingRange("range2", createRef(135), 0, 360, 22.5),
         new RingSelect("select1", createRef(0), [
@@ -44,7 +46,7 @@ const radialMenu = new RadialMenu(app, {
             "item3",
             "item4",
         ]),
-        new RingBool("bool1", createRef(false)),
+        new RingBool("bool2", boolRef),
     ]),
     ringProps: { // try these values if you want
         // startAngle: -Math.PI * 1.5,
