@@ -63,6 +63,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
             // TODO: make this configurable
             this.animateAt += clampSym(delta, props.delta * 0.005);
         }
+
         if (this.animateTo === 0 && this.animateAt === 0) {
             props.menu.unsetOverlay();
             this.currentIndex = this.targetIndex;
@@ -89,7 +90,6 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
         const textSize = props.theme.textSize.getTextSize(props.radius);
 
         this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
-
     }
 
     private getDrawItems(index: number): DrawItem[] {
