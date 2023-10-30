@@ -90,7 +90,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         ctx.fill();
 
         ctx.strokeStyle = props.theme.sliderBg;
-        ctx.lineWidth = 16; // TODO: make this configurable
+        ctx.lineWidth = props.theme.sliderWidth.getTextSize(props.radius);
         ctx.lineCap = "round";
 
         ctx.beginPath();

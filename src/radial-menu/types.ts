@@ -13,6 +13,7 @@ export type RadialMenuTheme = {
     highlightOverlay: string;
     sliderBg: string;
     sliderFg: string;
+    sliderWidth: TextSize;
 };
 
 export type RadialMenuProps = {

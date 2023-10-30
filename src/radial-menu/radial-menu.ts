@@ -13,6 +13,7 @@ export const defaultColors: RadialMenuTheme = {
     highlightOverlay: '#000a', // just darkens the rest of the ring
     sliderBg: '#555',
     sliderFg: '#0ae',
+    sliderWidth: TextSizeRel(25 / 500),
 };
 
 export type Canvases = {
