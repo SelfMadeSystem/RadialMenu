@@ -20,6 +20,8 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
     // For animation
     public currentIndex: number;
     public targetIndex: number;
+    public animateAt: number = 0;
+    public animateTo: number = 0;
 
     constructor(text: string, ref: Ref<number>, items: RingSelectItem[]) {
         super(text);
@@ -49,9 +51,22 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
     public onClick(menu: RadialMenu): void {
         menu.setOverlay(this);
+        this.animateTo = 1;
     }
 
     public drawOverlay(contexts: Contexts, props: RadialMenuDrawProps): void {
+        if (this.animateAt !== this.animateTo) {
+            const delta = this.animateTo - this.animateAt;
+
+            // TODO: make this configurable
+            this.animateAt += clampSym(delta, props.delta * 0.005);
+        }
+        if (this.animateTo === 0 && this.animateAt === 0) {
+            props.menu.unsetOverlay();
+            this.currentIndex = this.targetIndex;
+            return;
+        }
+
         const ctx = contexts.overlayFg;
 
         ctx.save();
@@ -62,12 +77,14 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        // TODO: Animate this
+        ctx.globalAlpha = this.animateAt;
 
         ctx.fillText(this.name, pos.x, pos.y);
         ctx.restore();
 
         this.drawItems(contexts, props);
+
+        this.drawText(contexts.overlayFg, props);
     }
 
     private getDrawItems(index: number): DrawItem[] {
@@ -79,6 +96,8 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
             // we still want the selected item to have the same angle
             angleDelta = (ringAngleDiff - angleDelta) / (itemCount - 1);
         }
+
+        angleDelta *= this.animateAt;
 
         const angleOffset = angleDelta * index;
 
@@ -115,6 +134,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
             // TODO: make this configurable
             // TODO: when a full circle, go to closest direction
+            // TODO: make this configurable
             this.currentIndex += clampSym(delta, props.delta * 0.005);
         }
 
@@ -133,8 +153,6 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
                 endAngle: item.endAngle,
             };
 
-            // ctx.globalAlpha = this.getAlpha(i);
-
             // TODO: Animate this
             // TODO: Don't make this look garbo
 
@@ -146,7 +164,9 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
             fgCtx.save();
 
             pathItem(fgCtx, itemProps);
+            fgCtx.globalAlpha = this.animateAt;
             fgCtx.stroke(); // temporary. just so it looks different
+            fgCtx.globalAlpha = 1;
 
             fgCtx.clip();
 
@@ -154,16 +174,16 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
             const text = item.text;
 
-            const pos = getTextPosition(itemProps, text, fgCtx);
+            const pos = getTextPosition(itemProps, this.name, fgCtx);
 
-            fgCtx.fillText(text, pos.x, pos.y);
+            fgCtx.fillText(text, pos.x, pos.y + 20);
 
             fgCtx.restore();
         }
     }
 
-    public onCenterClick(menu: RadialMenu): void {
-        menu.unsetOverlay();
+    public onCenterClick(_menu: RadialMenu): void {
+        this.animateTo = 0;
     }
 
     public onRingClick(_menu: RadialMenu, angle: number, _distance: number): void {
