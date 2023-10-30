@@ -275,6 +275,10 @@ export class RadialMenu {
     }
 
     private onPointerMove(e: PointerEvent) {
+        if (!this.currentInput.onRingHover) {
+            return;
+        }
+
         const rect = this.app.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -318,6 +322,10 @@ export class RadialMenu {
     }
 
     private onPointerUp(e: PointerEvent) {
+        if (!this.currentInput.onRingUnclick) {
+            return;
+        }
+
         const rect = this.app.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -331,8 +339,7 @@ export class RadialMenu {
             if (angle >= startAngle && angle <= endAngle) {
                 const distance = Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2);
                 if (distance > innerRadius && distance < outerRadius) {
-                    if (this.currentInput.onRingUnclick)
-                        this.currentInput.onRingUnclick(this, angle, distance);
+                    this.currentInput.onRingUnclick(this, angle, distance);
                 }
             }
         }

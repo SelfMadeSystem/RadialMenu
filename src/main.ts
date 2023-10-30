@@ -1,6 +1,7 @@
 import { RingBool } from './radial-menu/items/ring-bool';
 import { RingMenu } from './radial-menu/items/ring-menu';
 import { RingRange } from './radial-menu/items/ring-range';
+import { RingSelect } from './radial-menu/items/ring-select';
 import { RadialMenu } from './radial-menu/radial-menu';
 import { createRef } from './radial-menu/ref';
 import './style.css';
@@ -20,9 +21,9 @@ const radialMenu = new RadialMenu(app, {
         new RingMenu("ring2", []),
         new RingMenu("ring3", []),
         new RingMenu("ring4", []),
-        new RingMenu("ring5", []),
         new RingRange("range1", createRef(50), 0, 100),
         new RingRange("range2", createRef(135), 0, 360, 22.5),
+        new RingSelect("select1", createRef(0), ["item1", "item2", "item3", "item4"]),
         new RingBool("bool1", createRef(false)),
     ]),
     ringProps: { // try these values if you want

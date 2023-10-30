@@ -79,7 +79,7 @@ export interface RadialMenuInput extends RadialMenuItem {
      * @param distance The distance of the cursor from the center.
      * @param down Whether the mouse is down.
      */
-    onRingHover(menu: RadialMenu, angle: number, distance: number, down: boolean): void;
+    onRingHover?(menu: RadialMenu, angle: number, distance: number, down: boolean): void;
 
     /**
      * Gets called when the ring is clicked.
