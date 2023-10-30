@@ -74,3 +74,10 @@ export function wrapAngle(angle: number, offset: number = 0): number {
 export function angleDiff(from: number, to: number): number {
     return wrapAngle(to - from, -Math.PI);
 }
+
+/**
+ * Determines if an angle is between two other angles (inclusive and shortest).
+ */
+export function angleBetween(angle: number, from: number, to: number): boolean {
+    return angleDiff(from, angle) >= 0 && angleDiff(angle, to) >= 0;
+}

@@ -1,16 +1,27 @@
 import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay } from "..";
 import { Contexts, RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
-import { angleDiff, getTextPosition, pathItem } from "../utils";
+import { angleBetween, getTextPosition, pathItem } from "../utils";
 import { RingItemBase } from "./ring-item-base";
+
+type RingSelectItem = {
+    toString(): string;
+};
+
+type DrawItem = {
+    text: string;
+    selected: boolean;
+    startAngle: number;
+    endAngle: number;
+};
 
 export class RingSelect extends RingItemBase implements RadialMenuOverlay {
     public ref: Ref<number>; // index
-    public items: string[];
+    public items: RingSelectItem[];
     public rotation: number = 0;
     public rotationTarget: number = 0;
 
-    constructor(text: string, ref: Ref<number>, items: string[]) {
+    constructor(text: string, ref: Ref<number>, items: RingSelectItem[]) {
         super(text);
         this.ref = ref;
         this.items = items;
@@ -21,7 +32,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
     }
 
     public getText(): string {
-        return this.items[this.ref.get()];
+        return this.items[this.ref.get()].toString();
     }
 
     public drawItem(contexts: Contexts, props: RadialMenuDrawProps): void {
@@ -60,32 +71,54 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
         this.drawItems(contexts, props);
     }
 
-    public drawItems(contexts: Contexts, props: RadialMenuDrawProps): void {
-        const ctx = contexts.overlay;
-
-        ctx.save();
-        ctx.fillStyle = props.colors.highlightOverlay;
-
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
+    private getDrawItems(): DrawItem[] {
         const itemCount = this.items.length;
-        const angleDelta = this.itemProps.endAngle - this.itemProps.startAngle; // FIXME: when item count overflows the circle
+        let angleDelta: number = this.itemProps.endAngle - this.itemProps.startAngle;
+        const ringAngleDiff = this.parent!.ringProps.endAngle - this.parent!.ringProps.startAngle;
+        // FIXME: Not perfect. It can go outside the ring
+        if (itemCount * angleDelta > ringAngleDiff) {
+            // we still want the selected item to have the same angle
+            angleDelta = (ringAngleDiff - angleDelta) / (itemCount - 1);
+        }
+
         const angleOffset = angleDelta * this.ref.get();
-        const startProps: RadialMenuItemProps = {
-            ...this.itemProps,
-            startAngle: this.itemProps.startAngle - angleOffset,
-            endAngle: this.itemProps.endAngle - angleOffset,
-        };
-        ctx.restore();
+
+        let startAngle = this.itemProps.startAngle - angleOffset;
+        let endAngle = startAngle + angleDelta;
+
+        const items: DrawItem[] = [];
 
         for (let i = 0; i < itemCount; i++) {
             const item = this.items[i];
+            let selected = false;
 
+            if (i === this.ref.get()) {
+                endAngle = startAngle + this.itemProps.endAngle - this.itemProps.startAngle;
+                selected = true;
+            }
+
+            items.push({
+                text: item.toString(),
+                selected,
+                startAngle,
+                endAngle,
+            });
+
+            startAngle = endAngle;
+            endAngle = startAngle + angleDelta;
+        }
+
+        return items;
+    }
+
+    public drawItems(contexts: Contexts, props: RadialMenuDrawProps): void {
+        const ctx = contexts.overlay;
+
+        for (const item of this.getDrawItems()) {
             const itemProps: RadialMenuItemProps = {
-                ...startProps,
-                startAngle: startProps.startAngle + angleDelta * i,
-                endAngle: startProps.endAngle + angleDelta * i,
+                ...this.itemProps,
+                startAngle: item.startAngle,
+                endAngle: item.endAngle,
             };
 
             ctx.save();
@@ -96,7 +129,8 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
             // TODO: Animate this
             // TODO: Don't make this look garbo
 
-            if (i === this.ref.get()) {
+            if (item.selected) {
+                // TODO: Make the cursor independent of the items/selected item
                 ctx.fillStyle = props.colors.cursor;
             } else {
                 ctx.fillStyle = props.colors.ringBg;
@@ -109,9 +143,11 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
             ctx.fillStyle = props.colors.ringText;
 
-            const pos = getTextPosition(itemProps, item, ctx);
+            const text = item.text;
 
-            ctx.fillText(item, pos.x, pos.y);
+            const pos = getTextPosition(itemProps, text, ctx);
+
+            ctx.fillText(text, pos.x, pos.y);
 
             ctx.restore();
         }
@@ -122,20 +158,16 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
     }
 
     public onRingClick(_menu: RadialMenu, angle: number, _distance: number): void {
-        const angleDelta = this.itemProps.endAngle - this.itemProps.startAngle;
-        const angleOffset = angleDelta * this.ref.get();
-        const startAngle = this.itemProps.startAngle - angleOffset;
+        // I'm lazy
+        const items = this.getDrawItems();
 
-        const diff = angleDiff(startAngle, angle);
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
 
-        const index = Math.floor(diff / angleDelta);
-
-        // FIXME: Doesn't work when items go beyond 180 degrees
-
-        if (index < 0 || index >= this.items.length) {
-            return;
+            if (angleBetween(angle, item.startAngle, item.endAngle)) {
+                this.ref.set(i);
+                return;
+            }
         }
-
-        this.ref.set(index);
     }
 }
