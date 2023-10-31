@@ -136,6 +136,10 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         if (!click) {
             return;
         }
+        if (this.animateTime !== 1) {
+            return;
+        }
+
         const ringProps = this.parent!.ringProps;
 
         const minAngle = ringProps.startAngle + this.ringAngleDiff;

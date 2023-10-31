@@ -1,4 +1,4 @@
-import { RadialMenuTheme, RadialMenuProps, RadialMenuRing, RadialMenuRingProps, RadialMenuOverlay, RadialMenuInput, RadialMenuDrawProps } from ".";
+import { RadialMenuTheme, RadialMenuProps, RadialMenuRing, RadialMenuRingProps, RadialMenuOverlay, RadialMenuInput, RadialMenuDrawProps, RadialMenuItemProps } from ".";
 import { TextSizeRel } from "./text-size";
 import { wrapAngle } from "./utils";
 
@@ -63,11 +63,6 @@ function createCanvas() {
     canvas.style.width = '100%';
     canvas.style.height = '100%';
 
-    new ResizeObserver(() => {
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-    }).observe(canvas);
-
     return canvas;
 }
 
@@ -84,7 +79,14 @@ export class RadialMenu {
 
     private prevTime: number = 0;
 
-    private createCanvases() {
+    private requestAnimationFrame: number = 0;
+
+    private createCanvases(props: RadialMenuProps) {
+        const redraw = () => {
+            cancelAnimationFrame(this.requestAnimationFrame);
+
+            this.update();
+        };
         const background = createCanvas();
         const cursor = createCanvas();
         const foreground = createCanvas();
@@ -99,6 +101,33 @@ export class RadialMenu {
         this.app.appendChild(overlayCursor);
         this.app.appendChild(overlayFg);
 
+        new ResizeObserver(() => {
+            const canvas = this.canvases.background;
+            const width = canvas.clientWidth;
+            const height = canvas.clientHeight;
+            background.width = cursor.width = foreground.width = overlayBg.width = overlayCursor.width = overlayFg.width = width;
+            background.height = cursor.height = foreground.height = overlayBg.height = overlayCursor.height = overlayFg.height = height;
+
+            new ResizeObserver(() => {
+                const radius = Math.min(canvas.width, canvas.height) / 2;
+                let rootRingProps: RadialMenuItemProps = {
+                    ...this.rootRingProps,
+                    center: { x: canvas.width / 2, y: canvas.height / 2 },
+                    outerRadius: radius,
+                    innerRadius: radius * 0.5,
+                };
+
+                this.rootRingProps = {
+                    ...rootRingProps,
+                    ...props.ringProps,
+                };
+
+                this.currentRing.updateRingProps(this.rootRingProps);
+            }).observe(canvas);
+
+            redraw();
+        }).observe(this.app);
+
         return { background, cursor, foreground, overlayBg, overlayCursor, overlayFg };
     }
 
@@ -109,7 +138,7 @@ export class RadialMenu {
         this.colors = { ...defaultColors, ...props.theme };
         this.currentInput = this.currentRing = props.rootRing;
 
-        this.canvases = this.createCanvases();
+        this.canvases = this.createCanvases(props);
 
         const canvas = this.canvases.background;
 
@@ -128,26 +157,6 @@ export class RadialMenu {
         };
 
         this.currentRing.updateRingProps(this.rootRingProps);
-
-
-        if (!props.ringProps?.center) {
-            new ResizeObserver(() => {
-                const radius = Math.min(canvas.width, canvas.height) / 2;
-                rootRingProps = {
-                    ...rootRingProps,
-                    center: { x: canvas.width / 2, y: canvas.height / 2 },
-                    outerRadius: radius,
-                    innerRadius: radius * 0.5,
-                };
-
-                this.rootRingProps = {
-                    ...rootRingProps,
-                    ...props.ringProps,
-                };
-
-                this.currentRing.updateRingProps(this.rootRingProps);
-            }).observe(canvas);
-        }
     }
 
     public start() {
@@ -268,7 +277,7 @@ export class RadialMenu {
         this.draw(delta, drawPrev);
         this.prevTime = time;
 
-        requestAnimationFrame(() => this.update());
+        this.requestAnimationFrame = requestAnimationFrame(() => this.update());
     }
 
     private getPointerAngle(e: PointerEvent): number {
