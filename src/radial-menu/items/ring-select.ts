@@ -1,4 +1,5 @@
 import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay } from "..";
+import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
 import { angleBetween, clamp, clampSym, getTextPosition, lerp, pathItem } from "../utils";
@@ -12,6 +13,7 @@ type DrawItem = {
     text: string;
     startAngle: number;
     endAngle: number;
+    primary: number;
 };
 
 export class RingSelect extends RingItemBase implements RadialMenuOverlay {
@@ -23,7 +25,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
     public animateAt: number = 0;
     public animateTo: number = 0;
 
-    constructor(text: string, ref: Ref<number>, items: RingSelectItem[]) {
+    constructor(text: FancyText, ref: Ref<number>, items: RingSelectItem[]) {
         super(text);
         this.ref = ref;
         this.items = items;
@@ -44,7 +46,12 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
         const textSize = props.theme.textSize.getTextSize(props.radius);
 
-        const pos = this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
+        const rect = this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
+
+        const pos = {
+            x: rect.x + rect.width * 0.5,
+            y: rect.y + rect.height,
+        };
 
         ctx.fillText(this.getText(), pos.x, pos.y + textSize * 0.75);
 
@@ -82,7 +89,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
         ctx.globalAlpha = this.animateAt;
 
-        ctx.fillText(this.name, pos.x, pos.y);
+        this.text.draw(ctx, pos, this.itemProps.outerRadius, props.theme.textSize.getTextSize(props.radius), props.theme.font, props.theme.ringText, props.theme.ringText);
         ctx.restore();
 
         this.drawItems(contexts, props);
@@ -113,9 +120,9 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
         for (let i = 0; i < itemCount; i++) {
             const item = this.items[i];
+            const t = clamp(Math.abs(i - index), 0, 1);
 
             if (i > index - 1 && i < index + 1) {
-                const t = clamp(Math.abs(i - index), 0, 1);
                 let newEndAngle = startAngle + this.itemProps.endAngle - this.itemProps.startAngle;
                 endAngle = lerp(newEndAngle, endAngle, t);
             }
@@ -124,6 +131,7 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
                 text: item.toString(),
                 startAngle,
                 endAngle,
+                primary: t,
             });
 
             startAngle = endAngle;
@@ -181,9 +189,21 @@ export class RingSelect extends RingItemBase implements RadialMenuOverlay {
 
             const text = item.text;
 
-            const pos = getTextPosition(itemProps, this.name, fgCtx);
+            const rect = this.getTextRect(fgCtx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 }, itemProps });
 
-            fgCtx.fillText(text, pos.x, pos.y + textSize * 0.75);
+            const posRect = {
+                x: rect.x + rect.width * 0.5,
+                y: rect.y + rect.height,
+            };
+
+            const posCenter = getTextPosition(itemProps);
+
+            const pos = {
+                x: lerp(posRect.x, posCenter.x, item.primary),
+                y: lerp(posRect.y + textSize * 0.75, posCenter.y, item.primary),
+            };
+
+            fgCtx.fillText(text, pos.x, pos.y);
 
             fgCtx.restore();
         }

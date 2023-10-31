@@ -1,4 +1,5 @@
 import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRingProps, RadialMenuRing } from "..";
+import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
 import { angleDiff, clampSym, pathItem } from "../utils";
 import { RingItemBase } from "./ring-item-base";
@@ -11,10 +12,10 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
     private anglePerItem: number = 0;
 
     constructor(
-        name: string,
+        text: FancyText,
         public items: RadialMenuItem[],
     ) {
-        super(name);
+        super(text);
         this.ringProps = {
             center: { x: 0, y: 0 },
             innerRadius: 0,

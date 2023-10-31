@@ -1,4 +1,5 @@
 import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay } from "..";
+import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
 import { clamp, clampSym, pathItem } from "../utils";
@@ -14,7 +15,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
     // TODO: make this configurable
     public readonly ringAngleDiff: number = 0.2;
 
-    constructor(text: string, ref: Ref<number>, min: number, max: number, step?: number) {
+    constructor(text: FancyText, ref: Ref<number>, min: number, max: number, step?: number) {
         super(text);
         this.ref = ref;
         this.min = min;
@@ -32,7 +33,12 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
 
         const textSize = props.theme.textSize.getTextSize(props.radius);
 
-        const pos = this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
+        const rect = this.drawText(ctx, props, { textSize, offset: { x: 0, y: -textSize * 0.75 } });
+
+        const pos = {
+            x: rect.x + rect.width * 0.5,
+            y: rect.y + rect.height,
+        };
 
         ctx.fillText(this.ref.get().toFixed(2), pos.x, pos.y + textSize * 0.75);
 
@@ -62,9 +68,14 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
 
         ctx.font = `${textSize}px ${props.theme.font}`;
 
-        ctx.fillText(this.name, pos.x, pos.y);
+        const rect = this.text.draw(ctx, pos, this.itemProps.outerRadius, props.theme.textSize.getTextSize(props.radius), props.theme.font, props.theme.ringText, props.theme.ringText);
 
-        ctx.fillText(this.ref.get().toFixed(2), pos.x, pos.y + textSize * 1.5);
+        const textPos = {
+            x: rect.x + rect.width * 0.5,
+            y: rect.y + rect.height,
+        };
+
+        ctx.fillText(this.ref.get().toFixed(2), textPos.x, textPos.y + textSize * 0.75);
         ctx.restore();
 
         this.drawSlider(ctx, props);

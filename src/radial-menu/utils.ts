@@ -17,16 +17,15 @@ export function pathItem(ctx: CanvasRenderingContext2D, props: RadialMenuItemPro
 
 /**
  * Gets the position to draw the text at.
+ * 
+ * Assumes that the text is centered horizontally and vertically.
  */
-export function getTextPosition(props: RadialMenuItemProps, text: string, ctx: CanvasRenderingContext2D): Vec2 {
-    const textWidth = ctx.measureText(text).width;
-    const textHeight = ctx.measureText("M").width;
-
+export function getTextPosition(props: RadialMenuItemProps): Vec2 {
     const angle = props.startAngle + (props.endAngle - props.startAngle) / 2;
     const radius = (props.innerRadius + props.outerRadius) / 2;
 
-    const x = props.center.x + Math.cos(angle) * radius - textWidth / 2;
-    const y = props.center.y + Math.sin(angle) * radius + textHeight / 2;
+    const x = props.center.x + Math.cos(angle) * radius;
+    const y = props.center.y + Math.sin(angle) * radius;
 
     return { x, y };
 }
