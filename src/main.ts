@@ -39,8 +39,8 @@ const radialMenu = new RadialMenu(app, {
         ]),
         new RingMenu(new FancyText("ring2", Icon(location), "bottom"), []),
         new RingBool(new FancyText("bool1", Icon(volume), "left"), boolRef),
-        new RingRange(new FancyText(undefined, Icon(brightness), "top"), createRef(135), 0, 360, 22.5),
-        new RingRange(new FancyText("range1", Icon(call), "right"), createRef(50), 0, 100),
+        new RingRange(new FancyText("range1", Icon(brightness), "right"), createRef(135), 0, 360, 22.5),
+        new RingRange(new FancyText(undefined, Icon(call), "right"), createRef(50), 0, 100),
         new RingSelect(new FancyText("select1", Icon(messages), "top"), createRef(0), [
             "item1",
             "item2",
@@ -57,13 +57,13 @@ const radialMenu = new RadialMenu(app, {
             "item13",
             "item14",
         ]),
-        new RingSelect(new FancyText("select2"), createRef(0), [
+        new RingSelect(new FancyText("select2", /* Icon(wifi), "top" */), createRef(0), [
             "item1",
             "item2",
             "item3",
             "item4",
         ]),
-        new RingBool(new FancyText("bool2"), boolRef),
+        new RingBool(new FancyText("bool2", /* Icon(airplane), "top" */), boolRef),
     ]),
     ringProps: { // try these values if you want
         // startAngle: -Math.PI * 1.5,
