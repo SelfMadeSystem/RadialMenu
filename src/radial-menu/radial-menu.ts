@@ -1,6 +1,6 @@
 import { RadialMenuTheme, RadialMenuProps, RadialMenuRing, RadialMenuRingProps, RadialMenuOverlay, RadialMenuInput, RadialMenuDrawProps, RadialMenuItemProps } from ".";
 import { TextSizeRel } from "./text-size";
-import { wrapAngle } from "./utils";
+import { wrapAngle } from "./utils/MathUtils";
 
 export const defaultColors: RadialMenuTheme = {
     ringBg: '#cccccf',

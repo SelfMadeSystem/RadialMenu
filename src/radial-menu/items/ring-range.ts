@@ -2,7 +2,8 @@ import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay } from ".."
 import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
-import { clamp, clampSym, pathItem } from "../utils";
+import { pathItem } from "../utils/DrawUtils";
+import { clampSym, clamp } from "../utils/MathUtils";
 import { RingItemBase } from "./ring-item-base";
 
 export class RingRange extends RingItemBase implements RadialMenuOverlay {

@@ -1,7 +1,8 @@
 import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRingProps, RadialMenuRing } from "..";
 import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
-import { angleDiff, clampSym, pathItem } from "../utils";
+import { pathItem } from "../utils/DrawUtils";
+import { angleDiff, clampSym } from "../utils/MathUtils";
 import { RingItemBase } from "./ring-item-base";
 
 export class RingMenu extends RingItemBase implements RadialMenuRing {

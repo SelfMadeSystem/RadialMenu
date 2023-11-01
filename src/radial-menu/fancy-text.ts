@@ -1,5 +1,5 @@
 import { TextSize } from "./text-size";
-import { Vec2 } from "./utils";
+import { Vec2 } from "./utils/Vec2";
 
 export type Icon = {
     path: Path2D;

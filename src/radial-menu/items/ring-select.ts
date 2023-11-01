@@ -2,7 +2,8 @@ import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay } from ".."
 import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
-import { angleBetween, clamp, clampSym, getTextPosition, lerp, pathItem } from "../utils";
+import { pathItem, getTextPosition } from "../utils/DrawUtils";
+import { clampSym, clamp, lerp, angleBetween } from "../utils/MathUtils";
 import { RingItemBase } from "./ring-item-base";
 
 type RingSelectItem = {

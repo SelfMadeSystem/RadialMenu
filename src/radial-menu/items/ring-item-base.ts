@@ -1,7 +1,8 @@
 import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRing } from "..";
 import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
-import { Vec2, getTextPosition, pathItem } from "../utils";
+import { pathItem, getTextPosition } from "../utils/DrawUtils";
+import { Vec2 } from "../utils/Vec2";
 
 export class RingItemBase implements RadialMenuItem {
     public parent?: RadialMenuRing | undefined;
