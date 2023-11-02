@@ -24,7 +24,7 @@ export type RadialMenuProps = {
 
 export type RadialMenuDrawProps = {
     theme: RadialMenuTheme;
-    delta: number;
+    deltaTime: number;
     menu: RadialMenu;
     radius: number;
 };

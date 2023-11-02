@@ -2,8 +2,9 @@ import { RadialMenuDrawProps, RadialMenuItemProps, RadialMenuOverlay } from ".."
 import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
 import { Ref } from "../ref";
+import { AnimatedValue } from "../utils/AnimatedValue";
 import { pathItem } from "../utils/DrawUtils";
-import { clampSym, clamp } from "../utils/MathUtils";
+import { clamp } from "../utils/MathUtils";
 import { RingItemBase } from "./ring-item-base";
 
 export class RingRange extends RingItemBase implements RadialMenuOverlay {
@@ -11,9 +12,8 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
     public min: number;
     public max: number;
     public step?: number;
-    public animateTime: number = 0;
-    public animateTarget: number = 0;
-    // TODO: make this configurable
+    // TODO: make these configurable
+    public animateTime: AnimatedValue = new AnimatedValue(0, 0.0025);
     public readonly ringAngleDiff: number = 0.2;
 
     constructor(text: FancyText, ref: Ref<number>, min: number, max: number, step?: number) {
@@ -48,7 +48,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
 
     public onClick(menu: RadialMenu): void {
         menu.setOverlay(this);
-        this.animateTarget = 1.0;
+        this.animateTime.setTarget(1.0);
     }
 
     public drawOverlay(contexts: Contexts, props: RadialMenuDrawProps): void {
@@ -62,7 +62,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        ctx.globalAlpha = this.animateTime * 2;
+        ctx.globalAlpha = this.animateTime.getValue() * 2;
 
 
         const textSize = props.theme.textSize.getTextSize(props.radius);
@@ -83,19 +83,17 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
     }
 
     public drawSlider(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
-        if (this.animateTime !== this.animateTarget) {
-            const delta = this.animateTarget - this.animateTime;
-
-            this.animateTime += clampSym(delta, props.delta * 0.002); // TODO: make this configurable
-
-            if (this.animateTime === 0 && this.animateTarget === 0) {
+        if (this.animateTime.reached()) {
+            if (this.animateTime.targetValue === 0) {
                 props.menu.unsetOverlay();
                 return;
             }
+        } else {
+            this.animateTime.update(props.deltaTime);
         }
         ctx.save();
 
-        ctx.globalAlpha = this.animateTime * 2;
+        ctx.globalAlpha = this.animateTime.getValue() * 2;
 
         pathItem(ctx, this.parent!.ringProps);
         ctx.fillStyle = props.theme.ringBg;
@@ -111,7 +109,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         const minAngle = ringProps.startAngle + this.ringAngleDiff;
         const maxAngle = ringProps.endAngle - this.ringAngleDiff;
 
-        const animatedMaxAngle = minAngle + (maxAngle - minAngle) * this.animateTime;
+        const animatedMaxAngle = minAngle + (maxAngle - minAngle) * this.animateTime.getValue();
 
         ctx.arc(ringProps.center.x, ringProps.center.y, (ringProps.outerRadius + ringProps.innerRadius) / 2, minAngle, animatedMaxAngle);
         ctx.stroke();
@@ -130,14 +128,14 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
     }
 
     public onCenterClick(_menu: RadialMenu): void {
-        this.animateTarget = 0.0;
+        this.animateTime.setTarget(0.0);
     }
 
     public onRingHover(_menu: RadialMenu, angle: number, _distance: number, click: boolean): void {
         if (!click) {
             return;
         }
-        if (this.animateTime !== 1) {
+        if (this.animateTime.getValue() !== 1) {
             return;
         }
 
@@ -146,7 +144,7 @@ export class RingRange extends RingItemBase implements RadialMenuOverlay {
         const minAngle = ringProps.startAngle + this.ringAngleDiff;
         const maxAngle = ringProps.endAngle - this.ringAngleDiff;
 
-        const animatedMaxAngle = minAngle + (maxAngle - minAngle) * this.animateTime;
+        const animatedMaxAngle = minAngle + (maxAngle - minAngle) * this.animateTime.getValue();
 
         let value = this.min + (this.max - this.min) * (angle - minAngle) / (animatedMaxAngle - minAngle);
 

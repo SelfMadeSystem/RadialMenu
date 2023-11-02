@@ -1,15 +1,15 @@
 import { RadialMenuDrawProps, RadialMenuItem, RadialMenuItemProps, RadialMenuRingProps, RadialMenuRing } from "..";
 import { FancyText } from "../fancy-text";
 import { Contexts, RadialMenu } from "../radial-menu";
+import { AnimatedValue, smoothAnimate } from "../utils/AnimatedValue";
 import { pathItem } from "../utils/DrawUtils";
-import { angleDiff, clampSym } from "../utils/MathUtils";
+import { angleDiff } from "../utils/MathUtils";
 import { RingItemBase } from "./ring-item-base";
 
 export class RingMenu extends RingItemBase implements RadialMenuRing {
     public ringProps: RadialMenuRingProps;
     private selectedIndex: number = 0;
-    private cursorAngle: number = NaN;
-    private cursorAngleTarget: number = 0;
+    private cursorAngle: AnimatedValue = new AnimatedValue(NaN, 0.01, smoothAnimate);
     private anglePerItem: number = 0;
 
     constructor(
@@ -54,10 +54,10 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
         }
 
         this.anglePerItem = anglePerItem;
-        this.cursorAngleTarget = this.getCursorAngle(this.selectedIndex);
+        this.cursorAngle.setTarget(this.getCursorAngle(this.selectedIndex));
 
-        if (isNaN(this.cursorAngle)) {
-            this.cursorAngle = this.cursorAngleTarget;
+        if (isNaN(this.cursorAngle.currentValue)) {
+            this.cursorAngle.currentValue = this.cursorAngle.targetValue;
         }
     }
 
@@ -82,20 +82,14 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
     private drawCursor(ctx: CanvasRenderingContext2D, props: RadialMenuDrawProps): void {
         const cursorProps: RadialMenuItemProps = {
             ...this.ringProps,
-            startAngle: this.cursorAngle,
-            endAngle: this.cursorAngle + this.anglePerItem,
+            startAngle: this.cursorAngle.getValue(),
+            endAngle: this.cursorAngle.getValue() + this.anglePerItem,
         };
 
-        if (angleDiff(this.cursorAngle, this.cursorAngleTarget) !== 0) {
-            let delta: number;
+        if (!this.cursorAngle.reached()) {
+            this.cursorAngle.wrapNums = Math.abs(angleDiff(this.ringProps.startAngle, this.ringProps.endAngle)) < 0.001 ? [this.ringProps.startAngle, this.ringProps.endAngle] : undefined;
 
-            if (Math.abs(angleDiff(this.ringProps.startAngle, this.ringProps.endAngle)) < 0.001) {
-                delta = angleDiff(this.cursorAngle, this.cursorAngleTarget);
-            } else {
-                delta = this.cursorAngleTarget - this.cursorAngle;
-            }
-
-            this.cursorAngle += clampSym(delta, props.delta * 0.01); // TODO: make this configurable
+            this.cursorAngle.update(props.deltaTime);
         }
 
         pathItem(ctx, cursorProps);
@@ -144,7 +138,7 @@ export class RingMenu extends RingItemBase implements RadialMenuRing {
     public onRingHover(_menu: RadialMenu, angle: number, _distance: number): void {
         const index = this.getItemIndexAtAngle(angle);
         if (index !== undefined) {
-            this.cursorAngleTarget = this.getCursorAngle(index);
+            this.cursorAngle.setTarget(this.getCursorAngle(index));
             this.selectedIndex = index;
         }
     }

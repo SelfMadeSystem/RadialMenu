@@ -243,7 +243,7 @@ export class RadialMenu {
     public draw(delta: number, drawPrev: boolean) {
         clearCanvases(this.canvases);
         const contexts = getContexts(this.canvases);
-        const props: RadialMenuDrawProps = { theme: this.colors, delta, menu: this, radius: this.rootRingProps.outerRadius };
+        const props: RadialMenuDrawProps = { theme: this.colors, deltaTime: delta, menu: this, radius: this.rootRingProps.outerRadius };
         this.currentRing.drawRing(contexts, props);
 
         if (drawPrev && this.prevRing) {
